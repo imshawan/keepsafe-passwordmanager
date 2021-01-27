@@ -11,7 +11,7 @@ def create_DB():
     getConnect.close()
 
 def addElements(category, username, passwd):
-    if(not(path.exists("timetable.db"))):
+    if(not(path.exists("keepsafe.db"))):
         create_DB()
     pass
 
