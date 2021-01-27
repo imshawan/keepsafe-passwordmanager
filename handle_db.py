@@ -7,12 +7,12 @@
 
 import sqlite3, os
 
-DATABASE = 'keepsafe.db'
+DATABASE = 'keepsafe.db' # Database name
 
-def create_DB(category):
+def create_DB(category): # Category is the name of the tables
 
     '''This function creates a database for KeepSafe Application'''
-    get_DB = sqlite3.connect(DATABASE) # Database name
+    get_DB = sqlite3.connect(DATABASE) 
 
     #IF empty table, then just create the database file and return
     if category == "":
@@ -27,7 +27,7 @@ def create_DB(category):
 def addElements(category, username, passwd):
     '''Adds elements to database, pass arguements: category, username and password'''
     if(not(os.path.exists(DATABASE))):
-        create_DB("")
+        create_DB("")   # Creates a blank database without any tables
     get_DB = sqlite3.connect(DATABASE)
     getCurser = get_DB.cursor()
     try:
@@ -42,7 +42,7 @@ def addElements(category, username, passwd):
 def modifyElements(category, username, passwd):
     '''Edit/Modifys elements from database, pass arguements: category, username and password'''
     if(not(os.path.exists(DATABASE))):
-        raise RuntimeError('No Databases Found!')
+        raise RuntimeError('No Databases Found!')   # Handles FileNotFoundError
     else:
         get_DB = sqlite3.connect(DATABASE)
         getCurser = get_DB.cursor()
@@ -57,7 +57,7 @@ def modifyElements(category, username, passwd):
 def delElements(category, username, passwd):
     '''Deletes elements from database, pass arguements: category, username and password'''
     if(not(os.path.exists(DATABASE))):
-        raise RuntimeError('No Databases Found!')
+        raise RuntimeError('No Databases Found!')   # Handles FileNotFoundError
     else:
         get_DB = sqlite3.connect(DATABASE)
         getCurser = get_DB.cursor()
@@ -73,7 +73,7 @@ def getElements(category):
     '''Returns elements from database, pass arguements: category'''
     fields = []
     if(not(os.path.exists(DATABASE))):
-        raise RuntimeError('No Databases Found!')
+        raise RuntimeError('No Databases Found!')   # Handles FileNotFoundError
     else:
         get_DB = sqlite3.connect(DATABASE)
         getCurser = get_DB.cursor()
