@@ -32,11 +32,12 @@ def addElements(category, username, passwd):
     getCurser = get_DB.cursor()
     try:
         getCurser.execute(f"INSERT INTO {category} VALUES ('%s','%s')"%(username,passwd))
+        get_DB.commit()
+        get_DB.close()
+        return "success"
     except sqlite3.OperationalError as err:
-        print(err)
-    
-    get_DB.commit()
-    get_DB.close()
+        raise RuntimeError(err)
+        
 
 def modifyElements(category, username, passwd):
     '''Edit/Modifys elements from database, pass arguements: category, username and password'''
@@ -45,9 +46,13 @@ def modifyElements(category, username, passwd):
     else:
         get_DB = sqlite3.connect(DATABASE)
         getCurser = get_DB.cursor()
-        getCurser.execute(f'UPDATE {category} SET password={passwd} WHERE username={username}')
-        get_DB.commit()
-        get_DB.close()
+        try:
+            getCurser.execute(f'UPDATE {category} SET password={passwd} WHERE username={username}')
+            get_DB.commit()
+            get_DB.close()
+            return "success"
+        except sqlite3.OperationalError as err:
+            raise RuntimeError(err)
 
 def delElements(category, username, passwd):
     '''Deletes elements from database, pass arguements: category, username and password'''
@@ -56,9 +61,13 @@ def delElements(category, username, passwd):
     else:
         get_DB = sqlite3.connect(DATABASE)
         getCurser = get_DB.cursor()
-        getCurser.execute('DELETE FROM {category} WHERE username={username}')
-        get_DB.commit()
-        get_DB.close()
+        try:
+            getCurser.execute('DELETE FROM {category} WHERE username={username}')
+            get_DB.commit()
+            get_DB.close()
+            return "success"
+        except sqlite3.OperationalError as err:
+            raise RuntimeError(err)
 
 def getElements(category):
     '''Returns elements from database, pass arguements: category'''
@@ -68,7 +77,10 @@ def getElements(category):
     else:
         get_DB = sqlite3.connect(DATABASE)
         getCurser = get_DB.cursor()
-        for row in getCurser.execute(f'SELECT * FROM {category}'):
-            fields.append(row)
-        get_DB.close()
-        print(fields)
+        try:
+            for row in getCurser.execute(f'SELECT * FROM {category}'):
+                fields.append(row)
+            get_DB.close()
+            return fields
+        except sqlite3.OperationalError as err:
+            raise RuntimeError(err)
