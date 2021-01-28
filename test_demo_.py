@@ -1,4 +1,5 @@
 ''' This script was developed to check whether if all the functions of the "handle_db.py" are working properly
+
     This Script has the basic functionality to add, modify, delete and view database
     
     Author: Shawan Mandal
