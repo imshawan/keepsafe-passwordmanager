@@ -112,11 +112,11 @@ def getElements(category):
                 i = 0       # To avoid repeatation
                 for field in arrays:
                     if i == 0:
-                        bak = str(field)
+                        userID = str(field)
                     if i == 1:
-                        bak1 = str(field)
+                        passVal = str(field)
                         i=0
-                        fields.__setitem__(bak, bak1)
+                        fields.__setitem__(userID, passVal)
                     i += 1
                     
             get_DB.close()
