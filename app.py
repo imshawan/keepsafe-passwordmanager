@@ -100,7 +100,7 @@ def getValues(category):
 def getData(clicked): 
     '''This function fetches all the tables from the database'''
     tbl = []
-    global leftframelistbox, rightframelistbox, user
+    global leftframelistbox, rightframelistbox, userAuthentication
     if userAuthentication != True:
         messagebox.showerror('Error!', "Authenticate Yourself First!")
         return
@@ -146,7 +146,7 @@ def view():
     width = 500
     height = 220
     win = tk.Toplevel()
-    win.wm_title("KeepSafe - Password Manager")
+    win.wm_title("KeepSafe - View")
     screen_width = windows.winfo_screenwidth()
     screen_height = windows.winfo_screenheight()
 
@@ -162,28 +162,29 @@ def view():
 
     #USERNAME Frame
     U_FRAME = Frame(win_root, height=70, width=450)
-    U_FRAME.place(x=15,y=10)
+    U_FRAME.place(x=15,y=5)
     u = Label(U_FRAME, text='Your Username:',font=(None, 14, 'bold'))
     u.place(x=0, y=0)
     U_BOX = Entry(U_FRAME,font=('monospace', 11))
     U_BOX.insert(INSERT, username)
-    U_BOX.config(width=55)
+    U_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
     U_BOX.place(x=2,y=35)
 
     #PASSWORD Frame
     P_FRAME = Frame(win_root, height=70, width=450)
-    P_FRAME.place(x=15,y=90)
+    P_FRAME.place(x=15,y=80)
     p = Label(P_FRAME, text='Your Password:', font=(None, 14, 'bold'))
     p.place(x=0, y=0)
     P_BOX = Entry(P_FRAME,font=('monospace', 11))
     P_BOX.insert(INSERT, passwrd)
-    P_BOX.config(width=55)
+    P_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
     P_BOX.place(x=2,y=35)
 
     #BUTTONS
     bs = Button(win, text='Close',bd=0, bg=bars, width=10, activebackground=bars, command=win.destroy)
     bs.config(highlightbackground='blue', highlightthickness=1)
-    bs.place(x=205, y=height-45)
+    bs.config(highlightcolor="red")
+    bs.place(x=210, y=height-48)
 
 def resetConsole():
     # Clears all the elements (Username and password list) from the console
@@ -199,12 +200,17 @@ def rightClick(x):
 def leftClick(x):
     left_menu.tk_popup(x.x_root, x.y_root)
 
+def modifyElements():
+    pass
+
+
+
 # Login Frame
 loginFrame = Frame(windows, height=27, width=300, bg=bars)
 loginFrame.place(x=width/2-150, y=80)
 L_BOX = Entry(loginFrame,font=('monospace', 10))
 L_BOX.insert(INSERT, 'Enter Master Password')
-L_BOX.config(width=25, bg=bars, highlightthickness=1, highlightbackground='#0b5394')
+L_BOX.config(width=25, highlightthickness=1, highlightbackground='#0b5394')
 L_BOX.place(x=10,y=3)
 L_ico = PhotoImage(file='C:/Users/shawan049/Pictures/button_login.png')
 L_Btn = Button(loginFrame, image=L_ico, bd=0, bg=bars, activebackground=bars, command=checkAuthentication)
@@ -312,8 +318,9 @@ rightframelistboxscroll.pack(side='right', fill='y')
 right_menu = Menu(rightframelistbox, tearoff=False)
 right_menu.add_command(label='...')
 right_menu.add_command(label='View   ', command=view)
-right_menu.add_command(label='Modify   ')
 right_menu.add_command(label='Delete   ')
+right_menu.add_command(label='Modify Username')
+right_menu.add_command(label='Modify Password')
 right_menu.add_separator()
 right_menu.add_command(label='Close', command=resetConsole)
 rightframelistbox.bind("<Button-3>", rightClick)
