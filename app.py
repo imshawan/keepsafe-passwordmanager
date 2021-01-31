@@ -21,7 +21,9 @@ modifybtn = sm.ICO_MODIFY
 deletebtn = sm.ICO_DEL
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
-global response, userAuthentication
+global U_BOX, P_BOX, T_BOX
+global response, userAuthentication, currentCategory
+currentCategory = T_BOX = U_BOX = P_BOX = ""
 userAuthentication = False
 response = False
 clicked = False
@@ -100,7 +102,7 @@ def getValues(category):
 def getData(clicked): 
     '''This function fetches all the tables from the database'''
     tbl = []
-    global leftframelistbox, rightframelistbox, userAuthentication
+    global leftframelistbox, rightframelistbox, userAuthentication, currentCategory
     if userAuthentication != True:
         messagebox.showerror('Error!', "Authenticate Yourself First!")
         return
@@ -121,6 +123,7 @@ def getData(clicked):
                 leftframelistbox.delete(i)
             for i in rightframelistbox.get_children():
                 rightframelistbox.delete(i)
+            currentCategory = valueArray_2[0]
             getValues(valueArray_2[0])
 
 def getCurrentValues(r):
@@ -128,8 +131,53 @@ def getCurrentValues(r):
     valueArray_1 = r.item(currentSelectionRight)['values']
     username = valueArray_1[1]
     passwrd = valueArray_1[2]
-    return username, passwrd
-    
+    return username, passwrd 
+
+def RefreshValues():
+    global currentCategory
+    for i in leftframelistbox.get_children():
+        leftframelistbox.delete(i)
+    for i in rightframelistbox.get_children():
+        rightframelistbox.delete(i)
+    getValues(currentCategory)
+
+def addCategory():
+    global T_BOX
+
+    def add(name):
+        category = T_BOX.get()
+
+    width = 500
+    height = 130
+    win = tk.Toplevel()
+    win.wm_title("KeepSafe - Add Category")
+    screen_width = windows.winfo_screenwidth()
+    screen_height = windows.winfo_screenheight()
+
+    x = int((screen_width/2) - (width/2))
+    y = int((screen_height/2) - (height/2))
+
+    win.geometry("{}x{}+{}+{}".format(width, height, x, y))
+    win.resizable(False, False)
+    win.focus_set()
+
+    win_root = Frame(win, height=height-20, width=width-20)
+    win_root.place(x=10, y=10)
+
+    #USERNAME Frame
+    U_FRAME = Frame(win_root, height=70, width=450)
+    U_FRAME.place(x=15,y=5)
+    u = Label(U_FRAME, text='Category Name:',font=(None, 14, 'bold'))
+    u.place(x=0, y=0)
+
+    T_BOX = Entry(U_FRAME,font=('monospace', 11))
+    T_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
+    T_BOX.place(x=2,y=35)
+
+    bs = Button(win, text='Add Category', font=(None, 10, 'bold'), bd=0, bg=bars, width=15, activebackground=bars, command=win.destroy)
+    bs.config(highlightbackground='blue', highlightthickness=1)
+    bs.config(highlightcolor="red")
+    bs.place(x=185, y=height-40)
 
 def view():
     global rightframelistbox
@@ -192,6 +240,138 @@ def resetConsole():
     for i in rightframelistbox.get_children():
         rightframelistbox.delete(i)
 
+def modify_Elements(modificationType):
+    global rightframelistbox, currentCategory
+    username =''
+    passwrd = ''
+    try:
+        username, passwrd = getCurrentValues(rightframelistbox)
+    except:
+        pass
+    
+    if username == '' and passwrd == '':
+        if modificationType == 'new':
+            pass
+        else:
+            messagebox.showwarning("Warning!", "You need to select a record!") 
+            return  
+    else:
+        pass
+    def edit(table, editType, currentvalue, newvalue, win):
+        global U_BOX, P_BOX
+
+        if editType == 'new':
+            try:
+                username = U_BOX.get()
+                passwrd = P_BOX.get()
+                db.addElements(table, username, passwrd)
+                messagebox.showinfo("Information!", "Values added!")
+                RefreshValues()
+                win.destroy()
+            except RuntimeError as err:
+                err = str(err)
+                try:
+                    err = err.replace("table", "category")
+                except:
+                    pass
+                messagebox.showerror("Error!", err)
+                win.focus_set()
+        else:
+            currentvalue = U_BOX.get()
+            newvalue = P_BOX.get()
+            try:
+                output = db.modifyElements(table, editType, currentvalue, newvalue)
+                messagebox.showinfo("Information!", "Values Modified!")
+                RefreshValues()
+                win.destroy()
+            except RuntimeError as err:
+                err = str(err)
+                try:
+                    err = err.replace("table", "category")
+                except:
+                    pass
+                messagebox.showerror("Error!", err)
+                win.focus_set()
+
+    def editVal(table, editType, currentvalue, newvalue):
+        global currentCategory
+        e = editType[0].upper()
+        e = e + editType[1:]
+        width = 500
+        height = 300
+        win = tk.Toplevel()
+        win.wm_title(f"KeepSafe - Edit your {editType}")
+        screen_width = windows.winfo_screenwidth()
+        screen_height = windows.winfo_screenheight()
+
+        x = int((screen_width/2) - (width/2))
+        y = int((screen_height/2) - (height/2))
+
+        win.geometry("{}x{}+{}+{}".format(width, height, x, y))
+        win.resizable(False, False)
+        win.focus_set()
+
+        win_root = Frame(win, height=height-20, width=width-20)
+        win_root.place(x=10, y=10)
+
+        global U_BOX, P_BOX
+        # TABLE/CATEGORY NAME
+        C_FRAME = Frame(win_root, height=70, width=450)
+        C_FRAME.place(x=15,y=5)
+        c = Label(C_FRAME, text=f'{e} Category:',font=(None, 14, 'bold'))
+        c.place(x=0, y=0)
+        C_BOX = Entry(C_FRAME,font=('monospace', 11))
+        C_BOX.insert(INSERT, currentCategory)
+        C_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
+        C_BOX.place(x=2,y=35)
+
+        #USERNAME Frame
+        U_FRAME = Frame(win_root, height=70, width=450)
+        U_FRAME.place(x=15,y=80)
+        u = Label(U_FRAME, text=f'Your current {editType}:',font=(None, 14, 'bold'))
+        u.place(x=0, y=0)
+        U_BOX = Entry(U_FRAME,font=('monospace', 11))
+        U_BOX.insert(INSERT, currentvalue)
+        U_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
+        U_BOX.place(x=2,y=35)
+
+        #PASSWORD Frame
+        P_FRAME = Frame(win_root, height=70, width=450)
+        P_FRAME.place(x=15,y=160)
+        p = Label(P_FRAME, text=f'Your new {editType}:', font=(None, 14, 'bold'))
+        p.place(x=0, y=0)
+        P_BOX = Entry(P_FRAME,font=('monospace', 11))
+        P_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
+        P_BOX.place(x=2,y=35)
+        
+        bs = Button(win,bd=0, bg=bars, width=15, activebackground=bars)
+        bs.config(highlightbackground='blue', highlightthickness=1, font=(None, 10, 'bold'))
+        bs.place(x=190, y=height-48)
+
+        if editType == 'new':
+            win.wm_title("KeepSafe - Add Credentials")
+            c.config(text='Enter Category Name')
+            u.config(text='Enter Username')
+            p.config(text='Enter Password')
+            U_BOX.delete(0, END)
+            U_BOX.insert(INSERT, "Your Username")
+            P_BOX.delete(0, END)
+            P_BOX.insert(INSERT, "Your Password")
+
+            bs.config(text='Add Values',command=lambda: edit(currentCategory, 'new', username, passwrd, win))            
+        else:
+            bs.config(text='Change Values', command=lambda: edit(currentCategory, editType, currentvalue, newvalue, win))
+            bs.place(x=185, y=height-48)
+
+    
+    if modificationType == '':
+        return
+    elif modificationType == 'usr':
+        editVal(currentCategory, 'username', username, 'newvalue')
+    elif modificationType == 'psw':
+        editVal(currentCategory, 'password', passwrd, 'newvalue')
+    elif modificationType == 'new':
+        editVal('tablename', 'new', 'username', 'password')
 
 
 def rightClick(x):
@@ -200,10 +380,9 @@ def rightClick(x):
 def leftClick(x):
     left_menu.tk_popup(x.x_root, x.y_root)
 
-def modifyElements():
-    pass
 
 
+#-------------------------------------------------------------------------------------
 
 # Login Frame
 loginFrame = Frame(windows, height=27, width=300, bg=bars)
@@ -236,7 +415,7 @@ icoinfo = getICONS(infobtn)
 icoclose = getICONS(closebtn)
 addbtnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
 addbtnFrame.place(x=0,y=0)
-addbtn = Button(addbtnFrame, image=icoadd, bg=mainColor,activebackground=mainColor, borderwidth=0)
+addbtn = Button(addbtnFrame, image=icoadd, bg=mainColor,activebackground=mainColor, borderwidth=0, command=lambda: modify_Elements('new'))
 addbtn.place(x=4,y=0)
 addbtntxt = Label(addbtnFrame, text="Add", bg=mainColor, fg=AC_text)
 addbtntxt.place(x=10,y=45)
@@ -289,6 +468,7 @@ leftframelistboxscroll.pack(side='right', fill='y')
 # RIGHT CLICK Functionality for Left Frame
 left_menu = Menu(leftframelistbox, tearoff=False)
 left_menu.add_command(label='Get Data', command=lambda: getData(True))
+left_menu.add_command(label='Add Category', command=addCategory)
 leftframelistbox.bind("<Button-3>", leftClick)
 
 #-------------------------------------------------------------------------------------
@@ -319,8 +499,9 @@ right_menu = Menu(rightframelistbox, tearoff=False)
 right_menu.add_command(label='...')
 right_menu.add_command(label='View   ', command=view)
 right_menu.add_command(label='Delete   ')
-right_menu.add_command(label='Modify Username')
-right_menu.add_command(label='Modify Password')
+right_menu.add_command(label='Refresh   ', command=RefreshValues)
+right_menu.add_command(label='Modify Username', command=lambda: modify_Elements('usr'))
+right_menu.add_command(label='Modify Password', command=lambda: modify_Elements('psw'))
 right_menu.add_separator()
 right_menu.add_command(label='Close', command=resetConsole)
 rightframelistbox.bind("<Button-3>", rightClick)
