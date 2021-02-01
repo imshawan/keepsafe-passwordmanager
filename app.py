@@ -17,8 +17,9 @@ from ttkthemes import ThemedStyle
 
 keepsafe_ico = sm.MAIN_ICOTXT
 addbutton = sm.ICO_ADD
-modifybtn = sm.ICO_MODIFY
+viewbtn = sm.ICO_VIEW
 deletebtn = sm.ICO_DEL
+settingsbtn = sm.ICO_CONFIG
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
 global U_BOX, P_BOX, T_BOX, C_BOX
@@ -87,7 +88,12 @@ def getValues(category):
     usr = []
     psw = []
     
-    global rightframelistbox, currentCategory
+    global rightframelistbox, currentCategory, userAuthentication
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
 
     fields = db.getElements(category)
     for i in fields.keys():
@@ -97,10 +103,10 @@ def getValues(category):
     getData(False)
 
     if usr == [] or psw == []: # IF CATEGORY TABLE IS EMPTY
-        rightframelistbox.insert('', 'end', values=('1' + ".","<Empty Field>", "<Empty Field>"))
+        rightframelistbox.insert('', 'end', values=('1' + ".",currentCategory + " credentials","<Empty Field>", "<Empty Field>"))
 
     for i in range(len(usr)):
-        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " Credentials",usr[i],psw[i]))
+        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],psw[i]))
     
     rightframelistbox.config(yscrollcommand=rightframelistboxscroll.set)
     rightframelistboxscroll.config(command=rightframelistbox.yview)
@@ -110,7 +116,7 @@ def getData(clicked):
     tbl = []
     global leftframelistbox, rightframelistbox, userAuthentication, currentCategory
     if userAuthentication != True:
-        messagebox.showerror('Error!', "Authenticate Yourself First!")
+        messagebox.showerror('Error!', "Authenticate yourself first!")
         return
     else:
         pass
@@ -133,6 +139,14 @@ def getData(clicked):
             getValues(valueArray_2[0])
 
 def getCurrentValues(r):
+    ''' Takes the TreeView-Box as arguements and returns the Usernames and Passwords depending upon current selection '''
+    global userAuthentication
+
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
     currentSelectionRight = r.focus()
     valueArray_1 = r.item(currentSelectionRight)['values']
     username = valueArray_1[2]
@@ -140,7 +154,17 @@ def getCurrentValues(r):
     return username, passwrd 
 
 def RefreshValues():
-    global currentCategory
+    global currentCategory, userAuthentication
+
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
+
+    if currentCategory == '':
+        return
+
     for i in leftframelistbox.get_children():
         leftframelistbox.delete(i)
     for i in rightframelistbox.get_children():
@@ -148,11 +172,20 @@ def RefreshValues():
     getValues(currentCategory)
 
 def addCategory():
-    global T_BOX, currentCategory
+    ''' This function enables the user to add a new category as the name describes '''
+    global T_BOX, currentCategory, userAuthentication
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
 
-    def add():
+    def add(win):
         global T_BOX, currentCategory
         category = T_BOX.get()
+        if category == "":
+            messagebox.showerror("Error!", "No values was entered!")
+            return
         db.create_DB(category)
         messagebox.showinfo("Information!", f"{category} Category Created Successfully!")
         currentCategory = category
@@ -185,13 +218,62 @@ def addCategory():
     T_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
     T_BOX.place(x=2,y=35)
 
-    bs = Button(win, text='Add Category', font=(None, 10, 'bold'), bd=0, bg=bars, width=15, activebackground=bars, command=add)
+    bs = Button(win, text='Add Category', font=(None, 10, 'bold'), bd=0, bg=bars, width=15, activebackground=bars, command=lambda: add(win))
     bs.config(highlightbackground='blue', highlightthickness=1)
     bs.config(highlightcolor="red")
     bs.place(x=185, y=height-40)
 
+def delete_Category():
+    ''' This function deletes the category depending upon the user selection '''
+
+    global leftframelistbox, userAuthentication
+
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
+
+    currentSelectionLeft = leftframelistbox.focus()
+    valueArray_2 = leftframelistbox.item(currentSelectionLeft)['values'] # CONTAINS ARRAY
+    if valueArray_2 == "":
+        return
+
+    ans = messagebox.askokcancel("Warning!", f"Are you sure to delete category {valueArray_2[0]}?")
+    if ans:
+        try:
+            db.delTable(valueArray_2[0])
+            messagebox.showinfo("Information!", f"{valueArray_2[0]} was deleted successfully!")
+            RefreshCategory()
+        except RuntimeError as err:
+            messagebox.showerror("Error!", err)
+
+def RefreshCategory():
+    ''' Refreshes the category table on the left frame '''
+    global userAuthentication
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
+
+    for i in leftframelistbox.get_children():
+        leftframelistbox.delete(i)
+    for i in rightframelistbox.get_children():
+        rightframelistbox.delete(i)
+    getData(False)
+
+
 def view():
-    global rightframelistbox
+    ''' Right-click "View" function '''
+    global rightframelistbox, userAuthentication
+
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
+
     username =''
     passwrd = ''
     try:
@@ -245,14 +327,22 @@ def view():
     bs.config(highlightcolor="red")
     bs.place(x=210, y=height-48)
 
+
 def resetConsole():
-    # Clears all the elements (Username and password list) from the console
+    ''' Clears all the elements (Username and password list) from the console'''
     global rightframelistbox
     for i in rightframelistbox.get_children():
         rightframelistbox.delete(i)
 
 def modify_Elements(modificationType):
-    global rightframelistbox, currentCategory
+    global rightframelistbox, currentCategory, userAuthentication
+
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
+
     username =''
     passwrd = ''
     try:
@@ -277,6 +367,9 @@ def modify_Elements(modificationType):
             try:
                 username = U_BOX.get()
                 passwrd = P_BOX.get()
+                if username == "" or passwrd == "":
+                    messagebox.showerror("Error!", "No values was entered!")
+                    return
                 db.addElements(table, username, passwrd)
                 messagebox.showinfo("Information!", "Values added!")
                 currentCategory = table
@@ -291,11 +384,14 @@ def modify_Elements(modificationType):
                 messagebox.showerror("Error!", err)
                 win.focus_set()
         else:
-            currentvalue = U_BOX.get()
+            #currentvalue = U_BOX.get()
             newvalue = P_BOX.get()
+            if newvalue == "":
+                messagebox.showerror("Error!", "No values was entered!")
+                return
             try:
                 output = db.modifyElements(table, editType, currentvalue, newvalue)
-                messagebox.showinfo("Information!", "Values Modified!")
+                messagebox.showinfo("Information!", "Values modified successfully!")
                 RefreshValues()
                 win.destroy()
             except RuntimeError as err:
@@ -342,7 +438,7 @@ def modify_Elements(modificationType):
         #USERNAME Frame
         U_FRAME = Frame(win_root, height=70, width=450)
         U_FRAME.place(x=15,y=80)
-        u = Label(U_FRAME, text=f'Your current {editType}:',font=(None, 14, 'bold'))
+        u = Label(U_FRAME, text=f'Your Current {editType}:',font=(None, 14, 'bold'))
         u.place(x=0, y=0)
         U_BOX = Entry(U_FRAME,font=('monospace', 11))
         U_BOX.insert(INSERT, currentvalue)
@@ -374,6 +470,7 @@ def modify_Elements(modificationType):
 
             bs.config(text='Add Values',command=lambda: edit(currentCategory, 'new', username, passwrd, win))            
         else:
+            U_BOX.configure(state='disabled')
             bs.config(text='Change Values', command=lambda: edit(currentCategory, editType, currentvalue, newvalue, win))
             bs.place(x=185, y=height-48)
 
@@ -387,6 +484,50 @@ def modify_Elements(modificationType):
     elif modificationType == 'new':
         editVal('tablename', 'new', 'username', 'password')
 
+def delete_Elements():
+    ''' Deletes values of a particular username upon user condition '''
+    global rightframelistbox, currentCategory, userAuthentication
+
+    if userAuthentication:
+        pass
+    else:
+        messagebox.showerror('Error!', "Authenticate yourself first!")
+        return
+
+    usr =''
+    psw = ''
+    try:
+        usr, psw = getCurrentValues(rightframelistbox)
+    except:
+        pass
+    
+    if usr == '' and psw == '':
+        messagebox.showwarning("Warning!", "Select a field first!")
+        return
+
+    ans = messagebox.askokcancel("Warning!", f"Are you sure to delete values of {usr}?")
+    if ans:
+        try:
+            db.delElements(currentCategory, usr)
+            RefreshValues()
+            messagebox.showinfo("Success!", f"Values of '{usr}'' has been deleted!")
+        except RuntimeError as err:
+            messagebox.showerror("Error!", err)
+    else:
+        return
+
+def delete():
+    #global rightframelistbox, leftframelistbox
+
+    currentSelection1 = leftframelistbox.focus()
+    valueArray_1 = leftframelistbox.item(currentSelection1)['values'] # CONTAINS ARRAY
+    if valueArray_1 == "":
+        pass
+
+    currentSelection2 = rightframelistbox.focus()
+    valueArray2 = rightframelistbox.item(currentSelection2)['values']
+    if valueArray2 == "":
+        pass
 
 def rightClick(x):
     right_menu.tk_popup(x.x_root, x.y_root)
@@ -399,15 +540,15 @@ def leftClick(x):
 #-------------------------------------------------------------------------------------
 
 # Login Frame
-loginFrame = Frame(windows, height=27, width=300, bg=bars)
-loginFrame.place(x=width/2-150, y=80)
+loginFrame = Frame(windows, height=27, width=330, bg=bars)
+loginFrame.place(x=width/2-160, y=80)
 L_BOX = Entry(loginFrame,font=('monospace', 10))
 L_BOX.insert(INSERT, 'Enter Master Password')
-L_BOX.config(width=25, highlightthickness=1, highlightbackground='#0b5394')
+L_BOX.config(width=30, highlightthickness=1, highlightbackground='#0b5394')
 L_BOX.place(x=10,y=3)
 L_ico = PhotoImage(file='C:/Users/shawan049/Pictures/button_login.png')
 L_Btn = Button(loginFrame, image=L_ico, bd=0, bg=bars, activebackground=bars, command=checkAuthentication)
-L_Btn.place(x=200, y=2)
+L_Btn.place(x=235, y=2)
 
 #-------------------------------------------------------------------------------------
 #Title Frame
@@ -419,44 +560,54 @@ head.place(x=5,y=5)
 
 #-------------------------------------------------------------------------------------
 #Action Frame
+placeframe = 0
 AC_text = "#ffffff"
-actionFrame = Frame(root, height=70, width=350, bg=mainColor, highlightthickness=0)
-actionFrame.place(x=350, y=10)
+actionFrame = Frame(root, height=70, width=500, bg=mainColor, highlightthickness=0)
+actionFrame.place(x=370, y=10)
 icoadd = getICONS(addbutton)
-icoedit = getICONS(modifybtn)
-icodel = getICONS(deletebtn)
+icoview = getICONS(viewbtn)
+icosettings = getICONS(settingsbtn)
 icoinfo = getICONS(infobtn)
 icoclose = getICONS(closebtn)
 addbtnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
-addbtnFrame.place(x=0,y=0)
+addbtnFrame.place(x=placeframe,y=0)
 addbtn = Button(addbtnFrame, image=icoadd, bg=mainColor,activebackground=mainColor, borderwidth=0, command=lambda: modify_Elements('new'))
 addbtn.place(x=4,y=0)
 addbtntxt = Label(addbtnFrame, text="Add", bg=mainColor, fg=AC_text)
 addbtntxt.place(x=10,y=45)
-editbtnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
-editbtnFrame.place(x=70,y=0)
-editbtn = Button(editbtnFrame, image=icoedit, bg=mainColor,activebackground=mainColor, borderwidth=0)
-editbtn.place(x=4,y=0)
-editbtntxt = Label(editbtnFrame, text="Modify", bg=mainColor, fg=AC_text)
-editbtntxt.place(x=3,y=45)
-delbtnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
-delbtnFrame.place(x=140,y=0)
-delbtn = Button(delbtnFrame, image=icodel, bg=mainColor,activebackground=mainColor, borderwidth=0)
-delbtn.place(x=4,y=0)
-delbtntxt = Label(delbtnFrame, text="Delete", bg=mainColor, fg=AC_text)
-delbtntxt.place(x=5,y=45)
-info_btnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
-info_btnFrame.place(x=210,y=0)
-info_btn = Button(info_btnFrame, image=icoinfo, bg=mainColor,activebackground=mainColor, borderwidth=0)
-info_btn.place(x=4,y=0)
-info_btntxt = Label(info_btnFrame, text="Info", bg=mainColor, fg=AC_text)
-info_btntxt.place(x=10,y=45)
+
+placeframe  += 70
+viewbtnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
+viewbtnFrame.place(x=placeframe,y=0)
+viewbtnn = Button(viewbtnFrame, image=icoview, bg=mainColor,activebackground=mainColor, borderwidth=0, command=view)
+viewbtnn.place(x=4,y=0)
+viewbtntxt = Label(viewbtnFrame, text="View", bg=mainColor, fg=AC_text)
+viewbtntxt.place(x=9,y=45)
+
+
+placeframe += 70
+settingsFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
+settingsFrame.place(x=placeframe, y=0)
+settingsbtnn = Button(settingsFrame, image=icosettings, bg=mainColor, activebackground=mainColor, borderwidth=0)
+settingsbtnn.place(x=4, y=0)
+settingstxt = Label(settingsFrame, text='Settings', bg=mainColor, fg=AC_text)
+settingstxt.place(x=0,y=45)
+
+placeframe += 70
 close_btnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
-close_btnFrame.place(x=280,y=0)
+close_btnFrame.place(x=placeframe,y=0)
 close_btn = Button(close_btnFrame, image=icoclose, bg=mainColor,activebackground=mainColor, borderwidth=0, command=close)
 close_btn.place(x=4,y=0)
 close_btntxt = Label(close_btnFrame, text="Close", bg=mainColor, fg=AC_text)
 close_btntxt.place(x=8,y=45)
+
+placeframe += 70
+info_btnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
+info_btnFrame.place(x=placeframe,y=0)
+info_btn = Button(info_btnFrame, image=icoinfo, bg=mainColor,activebackground=mainColor, borderwidth=0)
+info_btn.place(x=4,y=0)
+info_btntxt = Label(info_btnFrame, text="About", bg=mainColor, fg=AC_text)
+info_btntxt.place(x=6,y=45)
 
 #-------------------------------------------------------------------------------------
 # LEFT FRAME
@@ -481,8 +632,11 @@ leftframelistboxscroll.pack(side='right', fill='y')
 
 # RIGHT CLICK Functionality for Left Frame
 left_menu = Menu(leftframelistbox, tearoff=False)
+left_menu.add_command(label='...')
+left_menu.add_command(label='Refresh', command=RefreshCategory)
 left_menu.add_command(label='Get Data', command=lambda: getData(True))
 left_menu.add_command(label='Add Category', command=addCategory)
+left_menu.add_command(label='Delete Category', command=delete_Category)
 leftframelistbox.bind("<Button-3>", leftClick)
 
 #-------------------------------------------------------------------------------------
@@ -514,7 +668,7 @@ rightframelistboxscroll.pack(side='right', fill='y')
 right_menu = Menu(rightframelistbox, tearoff=False)
 right_menu.add_command(label='...')
 right_menu.add_command(label='View   ', command=view)
-right_menu.add_command(label='Delete   ')
+right_menu.add_command(label='Delete   ', command=delete_Elements)
 right_menu.add_command(label='Refresh   ', command=RefreshValues)
 right_menu.add_command(label='Modify Username', command=lambda: modify_Elements('usr'))
 right_menu.add_command(label='Modify Password', command=lambda: modify_Elements('psw'))
