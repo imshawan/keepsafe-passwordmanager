@@ -21,14 +21,14 @@ modifybtn = sm.ICO_MODIFY
 deletebtn = sm.ICO_DEL
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
-global U_BOX, P_BOX, T_BOX
+global U_BOX, P_BOX, T_BOX, C_BOX
 global response, userAuthentication, currentCategory
-currentCategory = T_BOX = U_BOX = P_BOX = ""
+currentCategory = C_BOX = T_BOX = U_BOX = P_BOX = ""
 userAuthentication = False
 response = False
 clicked = False
 height=550
-width=856
+width=1006
 bars = 'silver'
 mainColor = '#212731'
     
@@ -86,7 +86,9 @@ def getValues(category):
     ''' This function fetches all the values (rows and columns) from the table supplied as arguements in Variable "category"'''
     usr = []
     psw = []
-    global rightframelistbox
+    
+    global rightframelistbox, currentCategory
+
     fields = db.getElements(category)
     for i in fields.keys():
         usr.append(i)
@@ -98,7 +100,7 @@ def getValues(category):
         rightframelistbox.insert('', 'end', values=('1' + ".","<Empty Field>", "<Empty Field>"))
 
     for i in range(len(usr)):
-        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",usr[i],psw[i]))
+        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " Credentials",usr[i],psw[i]))
     
     rightframelistbox.config(yscrollcommand=rightframelistboxscroll.set)
     rightframelistboxscroll.config(command=rightframelistbox.yview)
@@ -133,8 +135,8 @@ def getData(clicked):
 def getCurrentValues(r):
     currentSelectionRight = r.focus()
     valueArray_1 = r.item(currentSelectionRight)['values']
-    username = valueArray_1[1]
-    passwrd = valueArray_1[2]
+    username = valueArray_1[2]
+    passwrd = valueArray_1[3]
     return username, passwrd 
 
 def RefreshValues():
@@ -146,14 +148,14 @@ def RefreshValues():
     getValues(currentCategory)
 
 def addCategory():
-    global T_BOX
+    global T_BOX, currentCategory
 
     def add():
-        global T_BOX
+        global T_BOX, currentCategory
         category = T_BOX.get()
-        print(category)
         db.create_DB(category)
-        messagebox.showinfo("Information!", "Category Created Successfully!")
+        messagebox.showinfo("Information!", f"{category} Category Created Successfully!")
+        currentCategory = category
         RefreshValues()
 
     width = 500
@@ -176,7 +178,7 @@ def addCategory():
     #USERNAME Frame
     U_FRAME = Frame(win_root, height=70, width=450)
     U_FRAME.place(x=15,y=5)
-    u = Label(U_FRAME, text='Category Name:',font=(None, 14, 'bold'))
+    u = Label(U_FRAME, text='Category Name: (Without Spaces)',font=(None, 14, 'bold'))
     u.place(x=0, y=0)
 
     T_BOX = Entry(U_FRAME,font=('monospace', 11))
@@ -267,7 +269,9 @@ def modify_Elements(modificationType):
     else:
         pass
     def edit(table, editType, currentvalue, newvalue, win):
-        global U_BOX, P_BOX
+        global U_BOX, P_BOX, C_BOX, currentCategory
+        if table == "":
+            table = C_BOX.get()
 
         if editType == 'new':
             try:
@@ -275,6 +279,7 @@ def modify_Elements(modificationType):
                 passwrd = P_BOX.get()
                 db.addElements(table, username, passwrd)
                 messagebox.showinfo("Information!", "Values added!")
+                currentCategory = table
                 RefreshValues()
                 win.destroy()
             except RuntimeError as err:
@@ -323,7 +328,7 @@ def modify_Elements(modificationType):
         win_root = Frame(win, height=height-20, width=width-20)
         win_root.place(x=10, y=10)
 
-        global U_BOX, P_BOX
+        global U_BOX, P_BOX, C_BOX
         # TABLE/CATEGORY NAME
         C_FRAME = Frame(win_root, height=70, width=450)
         C_FRAME.place(x=15,y=5)
@@ -490,13 +495,15 @@ rightframelistboxFrame.place(x=0, y=27)
 # ListBox
 global rightframelistbox
 rightframelistbox = ttk.Treeview(rightframelistboxFrame) #(rightframelistboxFrame, height=30, width=92, borderwidth=0, bg='#f0f0f0')
-rightframelistbox.config(columns=('id', 'usr', 'psw'), show='headings', height=18)
+rightframelistbox.config(columns=('id', 'Type', 'usr', 'psw'), show='headings', height=18)
 rightframelistbox.heading(0, text='ID')
-rightframelistbox.heading(1, text='Username')
-rightframelistbox.heading(2, text='Password')
-rightframelistbox.column(0,width=30)
-rightframelistbox.column(1,width=293)
-rightframelistbox.column(2,width=230)
+rightframelistbox.heading(1, text='Type')
+rightframelistbox.heading(2, text='Username')
+rightframelistbox.heading(3, text='Password')
+rightframelistbox.column(0,width=30, anchor='ne')
+rightframelistbox.column(1, width=150)
+rightframelistbox.column(2,width=293)
+rightframelistbox.column(3,width=230)
 rightframelistbox.pack(side='left', fill='y')
 
 # Scrollbar
