@@ -59,8 +59,8 @@ style = ThemedStyle(windows)
 style.set_theme("adapta")
 styles.map("Treeview", background=[('selected', '#0f51c9')])
 #styles.theme_use('black')
-styles.configure("Treeview", background='#f0f0f0', foreground = 'black',fieldbackground="#f0f0f0", font=(None, 10))
-styles.configure("Treeview.Heading", font=(None, 10,'bold'))
+styles.configure("Treeview", background='#f0f0f0', foreground = 'black',fieldbackground="#f0f0f0", font=(None, 10), relief = 'flat')
+styles.configure("Treeview.Heading", font=(None, 11,'bold'))
 
 def getICONS(icon):
     base64_img_bytes = icon.encode('utf-8')
@@ -87,12 +87,16 @@ def getValues(category):
     usr = []
     psw = []
     global rightframelistbox
-    fields = db.getElements('hello')
+    fields = db.getElements(category)
     for i in fields.keys():
         usr.append(i)
     for i in fields.values():
         psw.append(i)
     getData(False)
+
+    if usr == [] or psw == []: # IF CATEGORY TABLE IS EMPTY
+        rightframelistbox.insert('', 'end', values=('1' + ".","<Empty Field>", "<Empty Field>"))
+
     for i in range(len(usr)):
         rightframelistbox.insert('', 'end', values=(str(i+1) + ".",usr[i],psw[i]))
     
@@ -144,8 +148,13 @@ def RefreshValues():
 def addCategory():
     global T_BOX
 
-    def add(name):
+    def add():
+        global T_BOX
         category = T_BOX.get()
+        print(category)
+        db.create_DB(category)
+        messagebox.showinfo("Information!", "Category Created Successfully!")
+        RefreshValues()
 
     width = 500
     height = 130
@@ -174,7 +183,7 @@ def addCategory():
     T_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
     T_BOX.place(x=2,y=35)
 
-    bs = Button(win, text='Add Category', font=(None, 10, 'bold'), bd=0, bg=bars, width=15, activebackground=bars, command=win.destroy)
+    bs = Button(win, text='Add Category', font=(None, 10, 'bold'), bd=0, bg=bars, width=15, activebackground=bars, command=add)
     bs.config(highlightbackground='blue', highlightthickness=1)
     bs.config(highlightcolor="red")
     bs.place(x=185, y=height-40)
