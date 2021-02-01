@@ -94,10 +94,25 @@ def delElements(category, username):
         except sqlite3.OperationalError as err:
             raise RuntimeError(err)
 
+def delTable(category):
+    '''This function is responsible for deleting a table from an existing database'''
+    if(not(os.path.exists(DATABASE))):
+        raise RuntimeError('No Databases Found!')
+    else:
+        get_DB = sqlite3.connect(DATABASE)
+        getCurser = get_DB.cursor()
+        try:
+            getCurser.execute(f'DROP TABLE {category}')
+            get_DB.commit()
+            get_DB.close()
+            return "success"
+        except sqlite3.OperationalError as err:
+            raise RuntimeError(err)
+
 def getElements(category):
     '''Returns a dictionary of elements from database, pass arguements: category'''
     f = []
-    fields = {"usernames": "passwords"}
+    fields = {}
     if(not(os.path.exists(DATABASE))):
         raise RuntimeError('No Databases Found!')   # Handles FileNotFoundError
     else:
