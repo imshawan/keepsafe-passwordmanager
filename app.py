@@ -14,6 +14,7 @@ import icons_base64 as sm
 from tkinter import messagebox
 from tkinter import ttk
 from ttkthemes import ThemedStyle 
+import information as inf
 
 keepsafe_ico = sm.MAIN_ICOTXT
 addbutton = sm.ICO_ADD
@@ -23,9 +24,10 @@ settingsbtn = sm.ICO_CONFIG
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
 global U_BOX, P_BOX, T_BOX, C_BOX
-global response, userAuthentication, currentCategory
+global response, userAuthentication, currentCategory, hide
 currentCategory = C_BOX = T_BOX = U_BOX = P_BOX = ""
 userAuthentication = False
+hide = True
 response = False
 clicked = False
 height=550
@@ -266,7 +268,8 @@ def RefreshCategory():
 
 def view():
     ''' Right-click "View" function '''
-    global rightframelistbox, userAuthentication
+    global rightframelistbox, userAuthentication, hide
+    hide = True
 
     if userAuthentication:
         pass
@@ -284,6 +287,21 @@ def view():
     if username == '' and passwrd == '':
         return
         
+    def showORhide(s, psBOX, pswrd):
+        global hide
+
+        if hide:
+            s.config(text='Hide')
+            psBOX.delete(0, END)
+            psBOX.insert(INSERT, pswrd)
+            hide = False
+        else:
+            s.config(text='Show')
+            psBOX.delete(0, END)
+            psBOX.insert(INSERT, len(pswrd) * "*")
+            hide = True
+
+
     width = 500
     height = 220
     win = tk.Toplevel()
@@ -317,15 +335,21 @@ def view():
     p = Label(P_FRAME, text='Your Password:', font=(None, 14, 'bold'))
     p.place(x=0, y=0)
     P_BOX = Entry(P_FRAME,font=('monospace', 11))
-    P_BOX.insert(INSERT, passwrd)
+    P_BOX.insert(INSERT, len(passwrd) * "*")
     P_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
     P_BOX.place(x=2,y=35)
 
-    #BUTTONS
+    #BUTTONS 
+
+    #SHOW / HIDE BUTTON
+    sh = Button(win, text='Show', bd=0, bg=bars, width=10, activebackground=bars, command=lambda: showORhide(sh, P_BOX, passwrd))
+    sh.place(x=160, y=height-48)
+
+    #CLOSE BUTTON
     bs = Button(win, text='Close',bd=0, bg=bars, width=10, activebackground=bars, command=win.destroy)
     bs.config(highlightbackground='blue', highlightthickness=1)
     bs.config(highlightcolor="red")
-    bs.place(x=210, y=height-48)
+    bs.place(x=270, y=height-48)
 
 
 def resetConsole():
@@ -604,7 +628,7 @@ close_btntxt.place(x=8,y=45)
 placeframe += 70
 info_btnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
 info_btnFrame.place(x=placeframe,y=0)
-info_btn = Button(info_btnFrame, image=icoinfo, bg=mainColor,activebackground=mainColor, borderwidth=0)
+info_btn = Button(info_btnFrame, image=icoinfo, bg=mainColor,activebackground=mainColor, borderwidth=0, command=lambda: inf.aboutwindow(windows))
 info_btn.place(x=4,y=0)
 info_btntxt = Label(info_btnFrame, text="About", bg=mainColor, fg=AC_text)
 info_btntxt.place(x=6,y=45)
@@ -633,8 +657,8 @@ leftframelistboxscroll.pack(side='right', fill='y')
 # RIGHT CLICK Functionality for Left Frame
 left_menu = Menu(leftframelistbox, tearoff=False)
 left_menu.add_command(label='...')
+left_menu.add_command(label='Open', command=lambda: getData(True))
 left_menu.add_command(label='Refresh', command=RefreshCategory)
-left_menu.add_command(label='Get Data', command=lambda: getData(True))
 left_menu.add_command(label='Add Category', command=addCategory)
 left_menu.add_command(label='Delete Category', command=delete_Category)
 leftframelistbox.bind("<Button-3>", leftClick)
