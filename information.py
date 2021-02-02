@@ -10,12 +10,21 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import *
 import tkinter as tk
-import platform, socket
+import platform, socket, base64
+import icons_base64 as icons
 
+
+
+
+def getICO(icon):
+    base64_img_bytes = icon.encode('utf-8')
+    decoded_image_data = base64.decodebytes(base64_img_bytes)
+    ico = PhotoImage(data=decoded_image_data)
+    return ico
 
 def aboutwindow(windows):
     width = 500
-    height = 550
+    height = 570
     win = tk.Toplevel()
     win.wm_title("KeepSafe - About")
     screen_width = windows.winfo_screenwidth()
@@ -29,34 +38,36 @@ def aboutwindow(windows):
     win.focus_set()
     #mainico = geticons(MAIN)
     #win.iconphoto(False, mainico)
+    iconMain = getICO(icons.MAIN_ICOTXT)
 
     host = socket.gethostname()
     processor = platform.processor()
     System = f'{platform.system()}, {platform.version()}, {platform.architecture()[0]}'
     Machine = processor.split(',')
 
-    infoframe = Frame(win, height=165, width=390)
-    infoframe.place(x=45,y=15)
-    lbl1 = Label(infoframe, text='KeepSafe - Password Manager', font=('AdobeClean-Bold', 13))
-    lbl1.place(x=85,y=5)
-    vlbl = Label(infoframe, text='Version 1.0.1')
-    vlbl.place(x=165,y=30)
-    line = Frame(win, height=1, width=397, highlightthickness=1, highlightbackground='black')
-    line.place(x=49, y=80)
-    lbl2 = Label(infoframe, text=f'Host Machine: {host}')
-    lbl2.place(x=30, y=80)
-    lbl3 = Label(infoframe, text=f'Current System: {System}')
-    lbl3.place(x=30, y=100)
-    lbl4 = Label(infoframe, text=f'Processor: {processor}')
-    lbl4.place(x=30, y=120)
-    lbl5 = Label(infoframe, text=f'Machine Type: {Machine[1]}')
-    lbl5.place(x=30, y=140)
+    headFrame = Frame(win, height=100, width=width, bg='#212731')
+    headFrame.place(x=0,y=0)
+    
+    lbl1 = Label(headFrame, image=iconMain, borderwidth=0)
+    lbl1.img = iconMain
+    lbl1.place(x=145,y=5)
+    vlbl = Label(headFrame, text='Version 1.0.1', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
+    vlbl.place(x=205,y=72)
+    
+    infoframe = Frame(win, height=95, width=380, highlightthickness=1, highlightbackground='black', bg='silver')
+    infoframe.place(x=60,y=120)
 
-    line1 = Frame(win, height=1, width=397, highlightthickness=1, highlightbackground='black')
-    line1.place(x=49, y=190)
+    lbl2 = Label(infoframe, text=f'Host Machine: {host}', bg='silver')
+    lbl2.place(x=20, y=5)
+    lbl3 = Label(infoframe, text=f'Current System: {System}', bg='silver')
+    lbl3.place(x=20, y=25)
+    lbl4 = Label(infoframe, text=f'Processor: {processor}', bg='silver')
+    lbl4.place(x=20, y=45)
+    lbl5 = Label(infoframe, text=f'Machine Type: {Machine[1]}', bg='silver')
+    lbl5.place(x=20, y=65)
 
     aboutframe = Frame(win, height=230, width=420)
-    aboutframe.place(x=55, y=205)
+    aboutframe.place(x=55, y=230)
     about = Label(aboutframe, text='KeepSafe is a free Powerful and secure password manager with a elegant \n'\
                                     'design. It lets you manage all your credentials quickly and efficiently for \n'\
                                     'local applications and online services in a single window. \n\n'\
@@ -72,15 +83,15 @@ def aboutwindow(windows):
     features.place(x=0, y=95)
 
     footer = Frame(win, height=60, width=420)
-    footer.place(x=60,y=415)
+    footer.place(x=60,y=440)
     footerlbl = Label(footer, text='KeepSafe is a free and open-source password manager. Send me your \n'\
                                     'feedbacks, bug-reports and suggestions about KeepSafe to:', justify=CENTER)
     footerlbl.place(x=0,y=0)
     emaillbl = Label(footer, text='imshawan.dev049@gmail.com',fg="blue", cursor="hand2")
     emaillbl.place(x=100,y=35)
 
-    b = ttk.Button(win, text="Close", command=win.destroy)
-    b.place(x=210, y=485)
+    b = ttk.Button(win, text="CLOSE", command=win.destroy)
+    b.place(x=206, y=510)
 
 def licenses(windows):
     width = 500
@@ -98,14 +109,15 @@ def licenses(windows):
     win.focus_set()
     #mainico = geticons(MAIN)
     #win.iconphoto(False, mainico)
-    infoframe = Frame(win, height=60, width=390)
-    infoframe.place(x=45,y=5)
-    lbl1 = Label(infoframe, text='KeepSafe - Password Manager', font=('AdobeClean-Bold', 13))
-    lbl1.place(x=105,y=5)
-    vlbl = Label(infoframe, text='Version 1.0.1')
-    vlbl.place(x=160,y=30)
-    mit = Label(win, text='MIT License')
-    mit.place(x=208,y=80)
+    iconMain = getICO(icons.MAIN_ICOTXT)
+
+    infoframe = Frame(win, height=60, width=width, bg='#212731')
+    infoframe.place(x=0,y=5)
+    lbl1 = Label(infoframe, image=iconMain, borderwidth=0)
+    lbl1.img = iconMain
+    lbl1.place(x=145,y=5)
+    mit = Label(win, text='MIT License', font=(None, 12, "bold"))
+    mit.place(x=198,y=80)
     copyryt = Label(win, text='Copyright (c) 2020 Shawan Mandal')
     copyryt.place(x=150,y=105)
 
@@ -129,6 +141,6 @@ def licenses(windows):
                                     'DEALINGS IN THE SOFTWARE.', justify=LEFT)
     textlbl.place(x=0,y=0)
 
-    b = ttk.Button(win, text="Close", command=win.destroy)
+    b = ttk.Button(win, text="CLOSE", command=win.destroy)
     b.place(x=205, y=420)
 
