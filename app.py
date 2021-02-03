@@ -14,7 +14,7 @@ import icons_base64 as sm
 from tkinter import messagebox
 from tkinter import ttk
 from ttkthemes import ThemedStyle 
-import information as inf
+import info as inf
 
 keepsafe_ico = sm.MAIN_ICOTXT
 addbutton = sm.ICO_ADD
