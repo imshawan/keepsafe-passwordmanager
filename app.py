@@ -6,7 +6,7 @@
 '''
 
 
-import base64, sys
+import base64, sys, os
 import handle_db as db
 from tkinter import *
 import tkinter as tk
@@ -14,13 +14,15 @@ import icons_base64 as sm
 from tkinter import messagebox
 from tkinter import ttk
 from ttkthemes import ThemedStyle 
-import info as inf
+import information as inf
+import config as conf
 
 keepsafe_ico = sm.MAIN_ICOTXT
 addbutton = sm.ICO_ADD
 viewbtn = sm.ICO_VIEW
 deletebtn = sm.ICO_DEL
 settingsbtn = sm.ICO_CONFIG
+loginbtn = sm.ICO_LOGINBTN
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
 global U_BOX, P_BOX, T_BOX, C_BOX
@@ -74,6 +76,10 @@ def getICONS(icon):
 def checkAuthentication():
     global userAuthentication
     passwd = L_BOX.get()
+    user = conf.getUsername(passwd) #Check if the master password can decrypt the config.json file and return response
+    if user == 'error':
+        pass #Condition, what to do if there is error during decryption
+
     if passwd == 'Enter Master Password':
         loginFrame.destroy()
         #messagebox.showinfo('Welcome!', "Authentication Succeeded!")
@@ -112,6 +118,7 @@ def getValues(category):
     
     rightframelistbox.config(yscrollcommand=rightframelistboxscroll.set)
     rightframelistboxscroll.config(command=rightframelistbox.yview)
+
 
 def getData(clicked): 
     '''This function fetches all the tables from the database'''
@@ -172,6 +179,7 @@ def RefreshValues():
     for i in rightframelistbox.get_children():
         rightframelistbox.delete(i)
     getValues(currentCategory)
+    
 
 def addCategory():
     ''' This function enables the user to add a new category as the name describes '''
@@ -387,7 +395,11 @@ def modify_Elements(modificationType):
         if table == "":
             table = C_BOX.get()
 
-        if editType == 'new':
+        if table == "":
+            messagebox.showerror("Error!", "Category type cannot be blank")
+            win.focus_set()
+
+        elif editType == 'new':
             try:
                 username = U_BOX.get()
                 passwrd = P_BOX.get()
@@ -491,10 +503,13 @@ def modify_Elements(modificationType):
             U_BOX.insert(INSERT, "Your Username")
             P_BOX.delete(0, END)
             P_BOX.insert(INSERT, "Your Password")
+            if currentCategory != "":
+                C_BOX.configure(state='disabled')
 
             bs.config(text='Add Values',command=lambda: edit(currentCategory, 'new', username, passwrd, win))            
         else:
             U_BOX.configure(state='disabled')
+            C_BOX.configure(state='disabled')
             bs.config(text='Change Values', command=lambda: edit(currentCategory, editType, currentvalue, newvalue, win))
             bs.place(x=185, y=height-48)
 
@@ -564,15 +579,31 @@ def leftClick(x):
 #-------------------------------------------------------------------------------------
 
 # Login Frame
-loginFrame = Frame(windows, height=27, width=330, bg=bars)
-loginFrame.place(x=width/2-160, y=80)
-L_BOX = Entry(loginFrame,font=('monospace', 10))
-L_BOX.insert(INSERT, 'Enter Master Password')
-L_BOX.config(width=30, highlightthickness=1, highlightbackground='#0b5394')
-L_BOX.place(x=10,y=3)
-L_ico = PhotoImage(file='C:/Users/shawan049/Pictures/button_login.png')
-L_Btn = Button(loginFrame, image=L_ico, bd=0, bg=bars, activebackground=bars, command=checkAuthentication)
-L_Btn.place(x=235, y=2)
+loginFrame = Frame(windows, height=27, width=width, bg=bars)
+loginFrame.place(x=0, y=80)
+button_login = getICONS(loginbtn)
+configured = False
+
+if not os.path.isfile('test.json'):
+    nosetup = Frame(loginFrame, height=25, width=width-100, bg=bars)
+    nosetup.place(x=250,y=3)
+    txtLbl = Label(nosetup, text="It looks like you're using this application for the first time,", bg=bars)
+    txtLbl.place(x=0,y=0)
+    setupbtn = Button(nosetup,bd=0, text='Set up', cursor="hand2", fg='blue', bg=bars, activebackground=bars)
+    setupbtn.place(x=306,y=0)
+    textlbl = Label(nosetup, text='your account to continue', bg=bars)
+    textlbl.place(x=343,y=0)
+    configured = False
+else:
+    loginBox = Frame(loginFrame, height=27, width=360, bg=bars)
+    loginBox.place(x=340,y=0)
+    L_BOX = Entry(loginBox,font=('monospace', 10))
+    L_BOX.insert(INSERT, 'Enter Master Password')
+    L_BOX.config(width=30, highlightthickness=1, highlightbackground='#0b5394')
+    L_BOX.place(x=10,y=3)
+    L_Btn = Button(loginBox, image=button_login, bd=0, bg=bars, activebackground=bars, command=checkAuthentication)
+    L_Btn.place(x=235, y=2)
+    configured = True
 
 #-------------------------------------------------------------------------------------
 #Title Frame
@@ -612,10 +643,10 @@ viewbtntxt.place(x=9,y=45)
 placeframe += 70
 settingsFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
 settingsFrame.place(x=placeframe, y=0)
-settingsbtnn = Button(settingsFrame, image=icosettings, bg=mainColor, activebackground=mainColor, borderwidth=0)
+settingsbtnn = Button(settingsFrame, image=icosettings, bg=mainColor, activebackground=mainColor, borderwidth=0, command=lambda: conf.config(windows, configured, userAuthentication))
 settingsbtnn.place(x=4, y=0)
-settingstxt = Label(settingsFrame, text='Settings', bg=mainColor, fg=AC_text)
-settingstxt.place(x=0,y=45)
+settingstxt = Label(settingsFrame, text='Control', bg=mainColor, fg=AC_text)
+settingstxt.place(x=1,y=45)
 
 placeframe += 70
 close_btnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
