@@ -17,6 +17,7 @@ from ttkthemes import ThemedStyle
 import information as inf
 import config as conf
 
+# ICONS Init
 keepsafe_ico = sm.MAIN_ICOTXT
 addbutton = sm.ICO_ADD
 viewbtn = sm.ICO_VIEW
@@ -25,6 +26,8 @@ settingsbtn = sm.ICO_CONFIG
 loginbtn = sm.ICO_LOGINBTN
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
+
+# GLOBAL VARIABLES
 global U_BOX, P_BOX, T_BOX, C_BOX
 global response, userAuthentication, currentCategory, hide
 currentCategory = C_BOX = T_BOX = U_BOX = P_BOX = ""
@@ -32,11 +35,22 @@ userAuthentication = False
 hide = True
 response = False
 clicked = False
+
+# Window properties
 height=550
 width=1006
+
+# Color init
 bars = 'silver'
 mainColor = '#212731'
     
+#CONFIG File
+cf = 'resources'
+if not os.path.exists(cf):
+    os.makedirs(cf)
+fl = 'config.json'
+configFile = os.path.join(cf, fl)
+
 
 windows = tk.Tk()
 windows.title('KeepSafe - Password Manager')
@@ -584,12 +598,19 @@ loginFrame.place(x=0, y=80)
 button_login = getICONS(loginbtn)
 configured = False
 
-if not os.path.isfile('test.json'):
+#Check for 'config.json' and if found then check for its contents... IF empty, proceed re-configuration
+try:
+    with open(configFile, 'r') as f:
+        dat = f.read()
+except:
+    pass
+
+if not os.path.isfile(configFile):
     nosetup = Frame(loginFrame, height=25, width=width-100, bg=bars)
     nosetup.place(x=250,y=3)
     txtLbl = Label(nosetup, text="It looks like you're using this application for the first time,", bg=bars)
     txtLbl.place(x=0,y=0)
-    setupbtn = Button(nosetup,bd=0, text='Set up', cursor="hand2", fg='blue', bg=bars, activebackground=bars)
+    setupbtn = Button(nosetup,bd=0, text='Set up', cursor="hand2", fg='blue', bg=bars, activebackground=bars, command=lambda: conf.config(windows, configured, 'newuser'))
     setupbtn.place(x=306,y=0)
     textlbl = Label(nosetup, text='your account to continue', bg=bars)
     textlbl.place(x=343,y=0)
