@@ -7,7 +7,13 @@
 
 import sqlite3, os
 
-DATABASE = 'keepsafe.db' # Database name
+dbFile = 'keepsafe.db' # Database name
+
+rPath = 'resources'
+if not os.path.exists(rPath):
+    os.makedirs(rPath)
+
+DATABASE = os.path.join(rPath, dbFile)
 
 def create_DB(category): # Category is the name of the tables
 
