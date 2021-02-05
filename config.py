@@ -10,10 +10,19 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter import *
 import tkinter as tk
-import base64, json
+import base64, json, os
 import icons_base64 as icon
 import encryption as crypt
 from datetime import datetime
+
+#CONFIG File
+global configFile
+
+cf = 'resources'
+if not os.path.exists(cf):
+    os.makedirs(cf)
+fl = 'config.json'
+configFile = os.path.join(cf, fl)
 
 
 '''width = 800
@@ -41,7 +50,8 @@ def getICO(icon):
     return ico
 
 def getUsername(master_password):
-    with open('config.json', 'rb') as config_file:
+    global configFile
+    with open(configFile, 'rb') as config_file:
             data_bytes = config_file.read()
         
     try:
@@ -88,7 +98,7 @@ def manageEnc(master_password, usr, pas, operation):
 
 
 def config(windows, configured, userAuthentication):
-    if userAuthentication:
+    if userAuthentication == True or userAuthentication == 'newuser':
         pass
     else:
         messagebox.showerror("Error!", "Authenticate yourself first!")
@@ -150,8 +160,8 @@ def config(windows, configured, userAuthentication):
     savebtn.img = savebtnico
     closebtn = Button(win, image=closebtnico, bd=0, bg='#3f6975', activebackground='#ff0000', command=win.destroy) 
     closebtn.img = closebtnico
-    savebtn.place(x=118,y=310)
-    closebtn.place(x=240,y=310)
+    savebtn.place(x=110,y=310)
+    closebtn.place(x=250,y=310)
     win.focus_set()
 
 
