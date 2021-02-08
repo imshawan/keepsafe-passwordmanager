@@ -80,11 +80,11 @@ def manageEnc(master_password, usr, pas, operation):
             print(err)
             return
 
-        with open('config.json', 'wb') as config_file:
+        with open(configFile, 'wb') as config_file:
             config_file.write(config_data)
 
     elif operation == 'change':
-        with open('config.json', 'rb') as config_file:
+        with open(configFile, 'rb') as config_file:
             data_bytes = config_file.read()
         
         try:
