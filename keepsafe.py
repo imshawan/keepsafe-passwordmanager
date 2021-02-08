@@ -92,15 +92,13 @@ def checkAuthentication():
     passwd = L_BOX.get()
     user = conf.getUsername(passwd) #Check if the master password can decrypt the config.json file and return response
     if user == 'error':
-        pass #Condition, what to do if there is error during decryption
-
-    if passwd == 'Enter Master Password':
+        messagebox.showerror('Error!', "Authentication Failed!")
+    else:
+        #Condition, what to do if there is error during decryption
         loginFrame.destroy()
-        #messagebox.showinfo('Welcome!', "Authentication Succeeded!")
         userAuthentication = True
         getData(False)
-    else:
-        messagebox.showerror('Error!', "Authentication Failed!")
+        messagebox.showinfo('Authenticated!', f"Welcome {user['username']}!")
 
 def getValues(category):
     ''' This function fetches all the values (rows and columns) from the table supplied as arguements in Variable "category"'''
@@ -603,6 +601,7 @@ except:
     pass
 
 if not os.path.isfile(configFile):
+    configured = False
     nosetup = Frame(loginFrame, height=25, width=width-100, bg=bars)
     nosetup.place(x=250,y=3)
     txtLbl = Label(nosetup, text="It looks like you're using this application for the first time,", bg=bars)
@@ -611,7 +610,7 @@ if not os.path.isfile(configFile):
     setupbtn.place(x=306,y=0)
     textlbl = Label(nosetup, text='your account to continue', bg=bars)
     textlbl.place(x=343,y=0)
-    configured = False
+    
 else:
     loginBox = Frame(loginFrame, height=27, width=360, bg=bars)
     loginBox.place(x=340,y=0)
