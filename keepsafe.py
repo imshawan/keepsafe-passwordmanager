@@ -102,9 +102,6 @@ def checkAuthentication():
     else:
         messagebox.showerror('Error!', "Authentication Failed!")
 
-def close():
-    sys.exit()
-
 def getValues(category):
     ''' This function fetches all the values (rows and columns) from the table supplied as arguements in Variable "category"'''
     usr = []
@@ -672,7 +669,7 @@ settingstxt.place(x=1,y=45)
 placeframe += 70
 close_btnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
 close_btnFrame.place(x=placeframe,y=0)
-close_btn = Button(close_btnFrame, image=icoclose, bg=mainColor,activebackground=mainColor, borderwidth=0, command=close)
+close_btn = Button(close_btnFrame, image=icoclose, bg=mainColor,activebackground=mainColor, borderwidth=0, command=windows.destroy)
 close_btn.place(x=4,y=0)
 close_btntxt = Label(close_btnFrame, text="Close", bg=mainColor, fg=AC_text)
 close_btntxt.place(x=8,y=45)
