@@ -341,6 +341,8 @@ def view():
 
     win.geometry("{}x{}+{}+{}".format(width, height, x, y))
     win.resizable(False, False)
+    mainICO = getICONS(sm.ICO_MAIN)
+    win.iconphoto(False, mainICO)
     win.focus_set()
 
     win_root = Frame(win, height=height-20, width=width-20)
@@ -587,8 +589,6 @@ def delete_Elements():
         return
 
 def delete():
-    #global rightframelistbox, leftframelistbox
-
     currentSelection1 = leftframelistbox.focus()
     valueArray_1 = leftframelistbox.item(currentSelection1)['values'] # CONTAINS ARRAY
     if valueArray_1 == "":
@@ -632,7 +632,7 @@ try:
 except:
     pass
 
-if not os.path.isfile(configFile):
+if not os.path.isfile(configFile) or dat == 'null' or dat == '':
     configured = False
     nosetup = Frame(loginFrame, height=25, width=width-100, bg=bars)
     nosetup.place(x=250,y=3)
@@ -645,8 +645,9 @@ if not os.path.isfile(configFile):
     
 else:
     logincheckbox()
-    
-# MAIN ICON
+
+
+# APPLICATION MAIN ICON
 mainICO = getICONS(sm.ICO_MAIN)
 windows.iconphoto(False, mainICO)
 
