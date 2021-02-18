@@ -75,8 +75,8 @@ def aboutwindow(windows):
     about = Label(aboutframe, text='KeepSafe is a free Powerful and secure password manager with a elegant \n'\
                                     'design. It lets you manage all your credentials quickly and efficiently for \n'\
                                     'local applications and online services in a single window. \n\n'\
-                                    'KeepSafe stores your credentials in an encrypted database so that no one\n'\
-                                    'can access your sensitive information without your permission.\n', justify=LEFT)
+                                    'KeepSafe stores your credentials in an encrypted form to the database so \n'\
+                                    'that no one can access your sensitive datas without your permission.\n', justify=LEFT)
     about.place(x=0,y=0)
     
     features = Label(aboutframe, text='Currently KeepSafe fully Supports (Features): \n\n'\
@@ -150,3 +150,4 @@ def licenses(windows):
 
     b = ttk.Button(win, text="CLOSE", command=win.destroy)
     b.place(x=205, y=420)
+
