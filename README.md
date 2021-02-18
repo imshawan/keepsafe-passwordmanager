@@ -20,7 +20,7 @@ pip install -r /path/to/requirements.txt
 ```
 ### Some Notes to be kept in mind!
 
-* /resources/config.dat       #Contains user configurations
-* /resources/keepsafe.db      #The main database file
+* /resources/config.dat ----------------------> Contains user configurations
+* /resources/keepsafe.db ---------------------> The main database file
 
 #### Files created under '/resources' folder are not to be played with and any changes made to the files may result in data loss AND I'm not responsible for that
