@@ -1,4 +1,5 @@
-''' Main script for KeepSafe - Password Manager
+''' 
+    Main script for KeepSafe - Password Manager
     Author: Shawan Mandal
     
     MIT License, see LICENSE for more details.
@@ -16,6 +17,7 @@ from tkinter import ttk
 from ttkthemes import ThemedStyle 
 import information as inf
 import config as conf
+import encryption as crypt
 
 # ICONS Init
 keepsafe_ico = sm.MAIN_ICOTXT
@@ -26,11 +28,12 @@ settingsbtn = sm.ICO_CONFIG
 loginbtn = sm.ICO_LOGINBTN
 infobtn = sm.ICO_INFO
 closebtn = sm.ICO_CLOSE
+licensebtn = sm.ICO_LICENSE
 
 # GLOBAL VARIABLES
 global U_BOX, P_BOX, T_BOX, C_BOX
-global response, userAuthentication, currentCategory, hide
-currentCategory = C_BOX = T_BOX = U_BOX = P_BOX = ""
+global response, userAuthentication, currentCategory, hide, passwd, usernamee
+currentCategory = C_BOX = T_BOX = U_BOX = P_BOX = L_BOX = passwd = usernamee = ""
 userAuthentication = False
 hide = True
 response = False
@@ -48,7 +51,7 @@ mainColor = '#212731'
 cf = 'resources'
 if not os.path.exists(cf):
     os.makedirs(cf)
-fl = 'config.json'
+fl = 'config.dat'
 configFile = os.path.join(cf, fl)
 
 
@@ -87,18 +90,21 @@ def getICONS(icon):
     ico = PhotoImage(data=decoded_image_data)
     return ico
 
-def checkAuthentication():
-    global userAuthentication
+def checkAuthentication(w):
+    global userAuthentication, passwd
     passwd = L_BOX.get()
     user = conf.getUsername(passwd) #Check if the master password can decrypt the config.json file and return response
     if user == 'error':
-        messagebox.showerror('Error!', "Authentication Failed!")
+        messagebox.showerror('Error!', "Incorrect Password, Authentication Failed!")
     else:
         #Condition, what to do if there is error during decryption
         loginFrame.destroy()
         userAuthentication = True
         getData(False)
-        messagebox.showinfo('Authenticated!', f"Welcome {user['username']}!")
+        w.title(f"KeepSafe - Logged in: {user['username']}")
+        db.pswd = passwd
+        conf.handle_message('welcome',w,'')
+        #messagebox.showinfo('Authenticated!', f"Welcome {user['username']}!")
 
 def getValues(category):
     ''' This function fetches all the values (rows and columns) from the table supplied as arguements in Variable "category"'''
@@ -123,7 +129,8 @@ def getValues(category):
         rightframelistbox.insert('', 'end', values=('1' + ".",currentCategory + " credentials","<Empty Field>", "<Empty Field>"))
 
     for i in range(len(usr)):
-        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],psw[i]))
+        decryptedPassword = crypt.decryptData(bytes(psw[i], 'utf-8'), db.pswd).decode()
+        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],len(decryptedPassword)*"*"))
     
     rightframelistbox.config(yscrollcommand=rightframelistboxscroll.set)
     rightframelistboxscroll.config(command=rightframelistbox.yview)
@@ -209,6 +216,7 @@ def addCategory():
         messagebox.showinfo("Information!", f"{category} Category Created Successfully!")
         currentCategory = category
         RefreshValues()
+        win.destroy()
 
     width = 500
     height = 130
@@ -285,7 +293,7 @@ def RefreshCategory():
 
 def view():
     ''' Right-click "View" function '''
-    global rightframelistbox, userAuthentication, hide
+    global rightframelistbox, userAuthentication, hide, currentCategory
     hide = True
 
     if userAuthentication:
@@ -303,7 +311,9 @@ def view():
     
     if username == '' and passwrd == '':
         return
-        
+    passwrd = db.getA_Password(currentCategory, username)
+    passwrd = crypt.decryptData(bytes(passwrd, 'utf-8'), db.pswd).decode()
+
     def showORhide(s, psBOX, pswrd):
         global hide
 
@@ -376,7 +386,7 @@ def resetConsole():
         rightframelistbox.delete(i)
 
 def modify_Elements(modificationType):
-    global rightframelistbox, currentCategory, userAuthentication
+    global rightframelistbox, currentCategory, userAuthentication, usernamee
 
     if userAuthentication:
         pass
@@ -384,14 +394,14 @@ def modify_Elements(modificationType):
         messagebox.showerror('Error!', "Authenticate yourself first!")
         return
 
-    username =''
+    usernamee =''
     passwrd = ''
     try:
-        username, passwrd = getCurrentValues(rightframelistbox)
+        usernamee, passwrd = getCurrentValues(rightframelistbox)
     except:
         pass
     
-    if username == '' and passwrd == '':
+    if usernamee == '' and passwrd == '':
         if modificationType == 'new':
             pass
         else:
@@ -415,6 +425,7 @@ def modify_Elements(modificationType):
                 if username == "" or passwrd == "":
                     messagebox.showerror("Error!", "No values was entered!")
                     return
+                
                 db.addElements(table, username, passwrd)
                 messagebox.showinfo("Information!", "Values added!")
                 currentCategory = table
@@ -435,7 +446,13 @@ def modify_Elements(modificationType):
                 messagebox.showerror("Error!", "No values was entered!")
                 return
             try:
-                output = db.modifyElements(table, editType, currentvalue, newvalue)
+                if editType == 'password':
+                    # Encrypting the plain password
+                    newvalue = crypt.encryptData(bytes(newvalue, 'utf-8'), db.pswd).decode()
+                    # Getting the current encrypted-password
+                    currentvalue = db.getA_Password(table, usernamee)
+
+                db.modifyElements(table, editType, currentvalue, newvalue)
                 messagebox.showinfo("Information!", "Values modified successfully!")
                 RefreshValues()
                 win.destroy()
@@ -449,7 +466,7 @@ def modify_Elements(modificationType):
                 win.focus_set()
 
     def editVal(table, editType, currentvalue, newvalue):
-        global currentCategory
+        global currentCategory, usernamee
         e = editType[0].upper()
         e = e + editType[1:]
         width = 500
@@ -486,7 +503,12 @@ def modify_Elements(modificationType):
         u = Label(U_FRAME, text=f'Your Current {editType}:',font=(None, 14, 'bold'))
         u.place(x=0, y=0)
         U_BOX = Entry(U_FRAME,font=('monospace', 11))
-        U_BOX.insert(INSERT, currentvalue)
+        if editType.lower() == 'password':
+            currpswd = db.getA_Password(currentCategory, usernamee)
+            currpswd = crypt.decryptData(bytes(currpswd, 'utf-8'), db.pswd).decode()
+            U_BOX.insert(INSERT, currpswd)
+        else:
+            U_BOX.insert(INSERT, currentvalue)
         U_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
         U_BOX.place(x=2,y=35)
 
@@ -515,7 +537,7 @@ def modify_Elements(modificationType):
             if currentCategory != "":
                 C_BOX.configure(state='disabled')
 
-            bs.config(text='Add Values',command=lambda: edit(currentCategory, 'new', username, passwrd, win))            
+            bs.config(text='Add Values',command=lambda: edit(currentCategory, 'new', usernamee, passwrd, win))            
         else:
             U_BOX.configure(state='disabled')
             C_BOX.configure(state='disabled')
@@ -526,7 +548,7 @@ def modify_Elements(modificationType):
     if modificationType == '':
         return
     elif modificationType == 'usr':
-        editVal(currentCategory, 'username', username, 'newvalue')
+        editVal(currentCategory, 'username', usernamee, 'newvalue')
     elif modificationType == 'psw':
         editVal(currentCategory, 'password', passwrd, 'newvalue')
     elif modificationType == 'new':
@@ -583,7 +605,17 @@ def rightClick(x):
 def leftClick(x):
     left_menu.tk_popup(x.x_root, x.y_root)
 
-
+def logincheckbox():
+    global configured, L_BOX
+    loginBox = Frame(loginFrame, height=27, width=360, bg=bars)
+    loginBox.place(x=340,y=0)
+    L_BOX = Entry(loginBox,font=('monospace', 10))
+    L_BOX.insert(INSERT, 'Enter Master Password')
+    L_BOX.config(width=30, highlightthickness=1, highlightbackground='#0b5394')
+    L_BOX.place(x=10,y=3)
+    L_Btn = Button(loginBox, image=button_login, bd=0, bg=bars, activebackground=bars, command=lambda: checkAuthentication(windows))
+    L_Btn.place(x=235, y=2)
+    configured = True
 
 #-------------------------------------------------------------------------------------
 
@@ -612,15 +644,11 @@ if not os.path.isfile(configFile):
     textlbl.place(x=343,y=0)
     
 else:
-    loginBox = Frame(loginFrame, height=27, width=360, bg=bars)
-    loginBox.place(x=340,y=0)
-    L_BOX = Entry(loginBox,font=('monospace', 10))
-    L_BOX.insert(INSERT, 'Enter Master Password')
-    L_BOX.config(width=30, highlightthickness=1, highlightbackground='#0b5394')
-    L_BOX.place(x=10,y=3)
-    L_Btn = Button(loginBox, image=button_login, bd=0, bg=bars, activebackground=bars, command=checkAuthentication)
-    L_Btn.place(x=235, y=2)
-    configured = True
+    logincheckbox()
+    
+# MAIN ICON
+mainICO = getICONS(sm.ICO_MAIN)
+windows.iconphoto(False, mainICO)
 
 #-------------------------------------------------------------------------------------
 #Title Frame
@@ -641,6 +669,7 @@ icoview = getICONS(viewbtn)
 icosettings = getICONS(settingsbtn)
 icoinfo = getICONS(infobtn)
 icoclose = getICONS(closebtn)
+icolic = getICONS(licensebtn)
 addbtnFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
 addbtnFrame.place(x=placeframe,y=0)
 addbtn = Button(addbtnFrame, image=icoadd, bg=mainColor,activebackground=mainColor, borderwidth=0, command=lambda: modify_Elements('new'))
@@ -680,6 +709,14 @@ info_btn = Button(info_btnFrame, image=icoinfo, bg=mainColor,activebackground=ma
 info_btn.place(x=4,y=0)
 info_btntxt = Label(info_btnFrame, text="About", bg=mainColor, fg=AC_text)
 info_btntxt.place(x=6,y=45)
+
+placeframe += 70
+info_licFrame = Frame(actionFrame, height=70, width=50, bg=mainColor)
+info_licFrame.place(x=placeframe,y=0)
+lic_btn = Button(info_licFrame, image=icolic, bg=mainColor,activebackground=mainColor, borderwidth=0, command=lambda: inf.licenses(windows))
+lic_btn.place(x=4,y=1)
+lic_btntxt = Label(info_licFrame, text="License", bg=mainColor, fg=AC_text)
+lic_btntxt.place(x=2,y=45)
 
 #-------------------------------------------------------------------------------------
 # LEFT FRAME
@@ -748,6 +785,6 @@ right_menu.add_separator()
 right_menu.add_command(label='Close', command=resetConsole)
 rightframelistbox.bind("<Button-3>", rightClick)
 
-
-
+#-------------------------------------------------------------------------------------
+# END of the program
 windows.mainloop()
