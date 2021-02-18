@@ -4,6 +4,8 @@
 
 # KeepSafe - Password Manager
 
+KeepSafe is a free Powerful and secure password manager with a elegant design. It lets you manage all your credentials quickly and efficiently for local applications and online services in a single window. KeepSafe stores your credentials in an encrypted form to the database so that no one can access your sensitive information without your permission.
+
 # Currently Under development...
 
 ## Main Features of KeepSafe - Password Manager
