@@ -1,4 +1,5 @@
-''' This module includes informations such as ABOUT and LICENSE information required for KeepSafe - Password Manager
+''' 
+    This module includes informations such as ABOUT and LICENSE information required for KeepSafe - Password Manager
     Author: Shawan Mandal
     
     MIT License, see LICENSE for more details.
