@@ -36,8 +36,11 @@ def aboutwindow(windows):
     win.geometry("{}x{}+{}+{}".format(width, height, x, y))
     win.resizable(False, False)
     win.focus_set()
-    #mainico = geticons(MAIN)
-    #win.iconphoto(False, mainico)
+
+    # MAIN ICON
+    mainICO = getICO(icons.ICO_MAIN)
+    win.iconphoto(False, mainICO)
+
     iconMain = getICO(icons.MAIN_ICOTXT)
 
     host = socket.gethostname()
@@ -107,8 +110,11 @@ def licenses(windows):
     win.geometry("{}x{}+{}+{}".format(width, height, x, y))
     win.resizable(False, False)
     win.focus_set()
-    #mainico = geticons(MAIN)
-    #win.iconphoto(False, mainico)
+
+    # MAIN ICON
+    mainICO = getICO(icons.ICO_MAIN)
+    win.iconphoto(False, mainICO)
+
     iconMain = getICO(icons.MAIN_ICOTXT)
 
     infoframe = Frame(win, height=60, width=width, bg='#212731')
