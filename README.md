@@ -18,9 +18,11 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the mod
 ```bash
 pip install -r /path/to/requirements.txt
 ```
-### Some Notes to be kept in mind!
+## Some Notes worth to be kept in mind!
 
 * /resources/config.dat ----------------------> Contains user configurations
 * /resources/keepsafe.db --------------------> The main database file
 
 #### Files created under '/resources' folder are not to be played with and any changes made to the files may result in data loss AND I'm not responsible for that
+
+<b>KeepSafe</b> is a Open-Source Password Manager for Windows. Send me your feedbacks, bug-reports and suggestions about KeepSafe to <a href="mailto:imshawan.dev049@gmail.com">imshawan.dev049@gmail.com</a>
