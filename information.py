@@ -54,7 +54,7 @@ def aboutwindow(windows):
     lbl1 = Label(headFrame, image=iconMain, borderwidth=0)
     lbl1.img = iconMain
     lbl1.place(x=145,y=5)
-    vlbl = Label(headFrame, text='Version 1.0.1', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
+    vlbl = Label(headFrame, text='Version 1.3.1', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
     vlbl.place(x=205,y=72)
     
     infoframe = Frame(win, height=95, width=380, highlightthickness=1, highlightbackground='black', bg='silver')
@@ -81,7 +81,7 @@ def aboutwindow(windows):
     features = Label(aboutframe, text='Currently KeepSafe fully Supports (Features): \n\n'\
                                         '    - A simple, flat and minimal UI design\n'\
                                         '    - Add, Modify, Delete records with ease\n'\
-                                        '    - All of your credentials are stored in a encrypted database\n'\
+                                        '    - All of your passwords are stored encrypted in the database\n'\
                                         '    - Friendly User Account controls', justify=LEFT)
     features.place(x=0, y=95)
 
@@ -124,7 +124,7 @@ def licenses(windows):
     lbl1.place(x=145,y=5)
     mit = Label(win, text='MIT License', font=(None, 12, "bold"))
     mit.place(x=198,y=80)
-    copyryt = Label(win, text='Copyright (c) 2020 Shawan Mandal')
+    copyryt = Label(win, text='Copyright (c) 2021 Shawan Mandal')
     copyryt.place(x=150,y=105)
 
     bottomfrm = Frame(win, height=290, width=420)
@@ -149,4 +149,3 @@ def licenses(windows):
 
     b = ttk.Button(win, text="CLOSE", command=win.destroy)
     b.place(x=205, y=420)
-
