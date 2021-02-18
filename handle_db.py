@@ -1,15 +1,20 @@
-''' This module includes all the database managements required for KeepSafe - Password Manager
+''' 
+    This module includes all the database managements required for KeepSafe - Password Manager
     Author: Shawan Mandal
     
     MIT License, see LICENSE for more details.
     Copyright (c) 2021 Shawan Mandal
 '''
 
-import sqlite3, os
+import sqlite3, os, io
+import encryption as crypt
 
 dbFile = 'keepsafe.db' # Database name
-
 rPath = 'resources'
+global pswd, passChanged
+pswd = ""   #The current MasterPassword, Changes after the user logins
+passChanged = False
+
 if not os.path.exists(rPath):
     os.makedirs(rPath)
 
@@ -20,7 +25,7 @@ def create_DB(category): # Category is the name of the tables
     '''This function creates a database for KeepSafe Application'''
     get_DB = sqlite3.connect(DATABASE) 
 
-    #IF empty table, then just create the database file and return
+    #IF empty table, then just create the database file and return without creating any tables/category
     if category == "":
         return
     else:
@@ -46,11 +51,16 @@ def getTables():
         raise RuntimeError("Something's not right")
 
 def addElements(category, username, passwd):
+    global pswd
     '''Adds elements to database, pass arguements: category, username and password'''
     if(not(os.path.exists(DATABASE))):
         create_DB("")   # Creates a blank database without any tables
+
+    # Encrypting the plain password
+    passwd = crypt.encryptData(bytes(passwd, 'utf-8'), pswd).decode()
     get_DB = sqlite3.connect(DATABASE)
     getCurser = get_DB.cursor()
+
     try:
         getCurser.execute(f"INSERT INTO {category} VALUES ('%s','%s')"%(username,passwd))
         get_DB.commit()
@@ -63,6 +73,7 @@ def addElements(category, username, passwd):
             # currentvalue is the current username or password
 def modifyElements(category, typeofdata, currentvalue, newvalue):
     '''Edit/Modifys elements from database, pass arguements: category, username and password'''
+    global pswd
     if(not(os.path.exists(DATABASE))):
         raise RuntimeError('No Databases Found!')   # Handles FileNotFoundError
     else:
@@ -84,9 +95,46 @@ def modifyElements(category, typeofdata, currentvalue, newvalue):
                 return "success"
             except sqlite3.OperationalError as err:
                 raise RuntimeError(err)
+def getA_Password(category, theUser):
+    '''This functioon returns the current password of a user depending upon the username'''
+    fields = []
+    get_DB = sqlite3.connect(DATABASE)
+    getCurser = get_DB.cursor()
+
+    try:
+        for rows in getCurser.execute(f'SELECT * FROM {category} WHERE username=("%s")'%(theUser)):
+            fields.append(rows)
+
+        return rows[1]
+    except sqlite3.OperationalError as err:
+        raise RuntimeError(err)
+
+
+def updateHASH(category, theUser, oldPassword):
+    '''Updates the passwords in the database if the user changes the Master Password'''
+    global pswd
+    currentPasswordHash = getA_Password(category, theUser)
+
+    #                 Encrypting the new password with then new user-password
+    currentPassword = crypt.decryptData(bytes(currentPasswordHash, 'utf-8'), oldPassword).decode() #Get the plain text password from the encrypted-password
+    newPasswordHash = crypt.encryptData(bytes(currentPassword, 'utf-8'), pswd).decode() #Encrypting the new password
+
+    #
+    #                 Updating the encrypted password
+    #
+    get_DB = sqlite3.connect(DATABASE)
+    getCurser = get_DB.cursor()
+    try:
+        getCurser.execute(f'UPDATE {category} SET password=("%s") WHERE username=("%s")'%(newPasswordHash,theUser))
+        get_DB.commit()
+        get_DB.close()
+        return "success"
+    except sqlite3.OperationalError as err:
+        raise RuntimeError(err)
 
 def delElements(category, username):
     '''Deletes elements from database, pass arguements: category and username'''
+    global pswd
     if(not(os.path.exists(DATABASE))):
         raise RuntimeError('No Databases Found!')   # Handles FileNotFoundError
     else:
@@ -117,6 +165,7 @@ def delTable(category):
 
 def getElements(category):
     '''Returns a dictionary of elements from database, pass arguements: category'''
+    global pswd
     f = []
     fields = {}
     if(not(os.path.exists(DATABASE))):
