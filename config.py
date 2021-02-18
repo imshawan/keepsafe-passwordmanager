@@ -177,7 +177,7 @@ def config(windows, configured, userAuthentication):
         messagebox.showerror("Error!", "Authenticate yourself first!")
         return
 
-    width = 450
+    width = 400
     height = 420
     win = tk.Toplevel()
     
@@ -212,14 +212,14 @@ def config(windows, configured, userAuthentication):
 
         userEntry = Entry(win, font=(None, 10), width=35, highlightthickness=1, highlightbackground='white', bg='#3f6975', fg='white')
         userEntry.insert(INSERT, 'Current password')
-        userEntry.place(x=100,y=202)
+        userEntry.place(x=75,y=202)
 
         passEntry = Entry(win, font=(None, 10), width=35, highlightthickness=1, highlightbackground='white', bg='#3f6975', fg='white')
         passEntry.insert(INSERT, 'New password')
-        passEntry.place(x=100,y=265)
+        passEntry.place(x=75,y=265)
         savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'change', win, windows))
         savebtn.img = savebtnico
-        savebtn.place(x=110,y=310)
+        savebtn.place(x=75,y=320)
     else:
         win.wm_title("KeepSafe - Set-up new account")
         #savebtn.config(command=lambda: manageEnc(userEntry, passEntry, 'register'))
@@ -229,19 +229,23 @@ def config(windows, configured, userAuthentication):
 
         userEntry = Entry(win, font=(None, 10), width=35, highlightthickness=1, highlightbackground='white', bg='#3f6975', fg='white')
         userEntry.insert(INSERT, 'Enter a username')
-        userEntry.place(x=100,y=202)
+        userEntry.place(x=75,y=202)
 
         passEntry = Entry(win, font=(None, 10), width=35, highlightthickness=1, highlightbackground='white', bg='#3f6975', fg='white')
         passEntry.insert(INSERT, 'Create password')
-        passEntry.place(x=100,y=265)
+        passEntry.place(x=75,y=265)
         savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'register', win))
         savebtn.img = savebtnico
-        savebtn.place(x=110,y=310)
+        savebtn.place(x=75,y=320)
         
     # CLOSE BUTTON
     
     closebtn = Button(win, image=closebtnico, bd=0, bg='#3f6975', activebackground='#ff0000', command=win.destroy) 
     closebtn.img = closebtnico
-    closebtn.place(x=250,y=310)
+    closebtn.place(x=235,y=320)
     
     win.focus_set()
+
+
+
+
