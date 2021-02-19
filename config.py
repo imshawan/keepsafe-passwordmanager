@@ -208,17 +208,17 @@ def config(windows, configured, userAuthentication):
     closebtnico = getICO(icon.CONF_CLOSE)
     closebtnico = closebtnico.subsample(2,2)
 
-    with open(configFile, 'rb') as config_file:     #Loads the config data file and stores it in data_bytes
-        data_bytes = config_file.read()
-    try:
-        config_data = crypt.decryptData(data_bytes, D_base.pswd)
-    except RuntimeError:
-        messagebox.showerror("Error!", "Some error occured!")
-    json_res = json.loads(config_data.decode('utf-8'))  #JSON Data extracted from config data file
-
     if configured:
         win.wm_title("KeepSafe - Change Passwords")
-        #savebtn.config(command=lambda: manageEnc(userEntry, passEntry, 'change'))
+
+        with open(configFile, 'rb') as config_file:     #Loads the config data file and stores it in data_bytes
+            data_bytes = config_file.read()
+        try:
+            config_data = crypt.decryptData(data_bytes, D_base.pswd)
+        except RuntimeError:
+            messagebox.showerror("Error!", "Some error occured!")
+        json_res = json.loads(config_data.decode('utf-8'))  #JSON Data extracted from config data file
+
         mainLbl = Label(win, image=background_2, highlightthickness=0, borderwidth=0)
         mainLbl.img = background_2
         mainLbl.place(x=0,y=0)
