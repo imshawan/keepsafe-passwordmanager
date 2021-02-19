@@ -30,7 +30,7 @@ configFile = os.path.join(cf, fl)
 def timestamp():
     '''Returns current date and timestamp'''
     t = datetime.now()
-    return t.strftime('%d:%m:%Y'), t.strftime('%H:%M:%S')
+    return t.strftime('%d-%m-%Y'), t.strftime('%H:%M:%S')
 
 def getICO(icon):
     base64_img_bytes = icon.encode('utf-8')
@@ -105,10 +105,11 @@ def getUsername(master_password):
 def manageEnc(userEntry, passEntry, operation, win, mainwindow):
     '''This function takes the parameters "Master Password", "Username and password" for new registration and "Operation" for the type of operation
     (either register or login) and performs the required work.'''
+
+    date, time = timestamp()
     if operation == 'register':
         usr = userEntry.get()
         pas = master_password = passEntry.get()
-        date, time = timestamp()
         data = {}
         data = {  #login_credentials
             'username': f'{usr}',
@@ -121,36 +122,40 @@ def manageEnc(userEntry, passEntry, operation, win, mainwindow):
             config_data = crypt.encryptData(data_bytes, master_password)
             D_base.pswd = master_password
         except RuntimeError:
-            handle_message('fail', win)
+            handle_message('fail', win, mainwindow)
             return
 
         with open(configFile, 'wb') as config_file:
             config_file.write(config_data)
-        handle_message('success', win)
+        handle_message('success', win, mainwindow)
         win.destroy()
 
     elif operation == 'change':
         users = []
         master_password = userEntry.get()
         new_password = passEntry.get()
+
         with open(configFile, 'rb') as config_file:
             data_bytes = config_file.read()
         
         try:
             config_data = crypt.decryptData(data_bytes, master_password)
         except RuntimeError:
-            handle_message('fail', win)
+            handle_message('fail', win, mainwindow)
             return
 
         json_res = json.loads(config_data.decode('utf-8'))
+
         oldPass = json_res['password']
         json_res['password'] = new_password
+        json_res['date'] = date
+        json_res['time'] = time
 
         data_bytes = json.dumps(json_res).encode('utf-8')
         try:
             config_data = crypt.encryptData(data_bytes, new_password)
         except RuntimeError:
-            handle_message('fail', win)
+            handle_message('fail', win, mainwindow)
             return
         with open(configFile, 'wb') as config_file:
             config_file.write(config_data)
@@ -203,6 +208,14 @@ def config(windows, configured, userAuthentication):
     closebtnico = getICO(icon.CONF_CLOSE)
     closebtnico = closebtnico.subsample(2,2)
 
+    with open(configFile, 'rb') as config_file:     #Loads the config data file and stores it in data_bytes
+        data_bytes = config_file.read()
+    try:
+        config_data = crypt.decryptData(data_bytes, D_base.pswd)
+    except RuntimeError:
+        messagebox.showerror("Error!", "Some error occured!")
+    json_res = json.loads(config_data.decode('utf-8'))  #JSON Data extracted from config data file
+
     if configured:
         win.wm_title("KeepSafe - Change Passwords")
         #savebtn.config(command=lambda: manageEnc(userEntry, passEntry, 'change'))
@@ -217,12 +230,21 @@ def config(windows, configured, userAuthentication):
         passEntry = Entry(win, font=(None, 10), width=35, highlightthickness=1, highlightbackground='white', bg='#3f6975', fg='white')
         passEntry.insert(INSERT, 'New password')
         passEntry.place(x=75,y=265)
+
+        # Show Last activity time
+        lastActivityFrame = Frame(win, height=50, width=330, bg='#3f6975')
+        lastActivityFrame.place(x=38, y=370)
+        # Shows the last activity date and time stored in config data file
+        lastActivitylabel = Label(lastActivityFrame, text=f"Last Password was updated at: {json_res['time'] } Hrs, Date: {json_res['date']}", bg='#3f6975', fg='#ffffff')
+        lastActivitylabel.place(x=0,y=0)
+
         savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'change', win, windows))
         savebtn.img = savebtnico
-        savebtn.place(x=75,y=320)
+        savebtn.place(x=75,y=315)
+
     else:
         win.wm_title("KeepSafe - Set-up new account")
-        #savebtn.config(command=lambda: manageEnc(userEntry, passEntry, 'register'))
+
         mainLbl = Label(win, image=background, highlightthickness=0, borderwidth=0)
         mainLbl.img = background
         mainLbl.place(x=0,y=0)
@@ -234,15 +256,16 @@ def config(windows, configured, userAuthentication):
         passEntry = Entry(win, font=(None, 10), width=35, highlightthickness=1, highlightbackground='white', bg='#3f6975', fg='white')
         passEntry.insert(INSERT, 'Create password')
         passEntry.place(x=75,y=265)
-        savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'register', win))
+
+        savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'register', win, windows))
         savebtn.img = savebtnico
-        savebtn.place(x=75,y=320)
-        
+        savebtn.place(x=75,y=315)
+
     # CLOSE BUTTON
     
     closebtn = Button(win, image=closebtnico, bd=0, bg='#3f6975', activebackground='#ff0000', command=win.destroy) 
     closebtn.img = closebtnico
-    closebtn.place(x=235,y=320)
+    closebtn.place(x=235,y=315)
     
     win.focus_set()
 
