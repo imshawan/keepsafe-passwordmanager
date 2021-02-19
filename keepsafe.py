@@ -138,6 +138,7 @@ def getValues(category):
 
 def getData(clicked): 
     '''This function fetches all the tables from the database'''
+    
     tbl = []
     global leftframelistbox, rightframelistbox, userAuthentication, currentCategory
     if userAuthentication != True:
@@ -179,6 +180,8 @@ def getCurrentValues(r):
     return username, passwrd 
 
 def RefreshValues():
+    '''Refresh the current items'''
+
     global currentCategory, userAuthentication
 
     if userAuthentication:
@@ -199,6 +202,7 @@ def RefreshValues():
 
 def addCategory():
     ''' This function enables the user to add a new category as the name describes '''
+
     global T_BOX, currentCategory, userAuthentication
     if userAuthentication:
         pass
@@ -230,6 +234,8 @@ def addCategory():
 
     win.geometry("{}x{}+{}+{}".format(width, height, x, y))
     win.resizable(False, False)
+    mainICO = getICONS(sm.ICO_MAIN)
+    win.iconphoto(False, mainICO)
     win.focus_set()
 
     win_root = Frame(win, height=height-20, width=width-20)
@@ -343,6 +349,7 @@ def view():
     win.resizable(False, False)
     mainICO = getICONS(sm.ICO_MAIN)
     win.iconphoto(False, mainICO)
+    
     win.focus_set()
 
     win_root = Frame(win, height=height-20, width=width-20)
@@ -483,12 +490,16 @@ def modify_Elements(modificationType):
 
         win.geometry("{}x{}+{}+{}".format(width, height, x, y))
         win.resizable(False, False)
+        mainICO = getICONS(sm.ICO_MAIN)
+        win.iconphoto(False, mainICO)
+
         win.focus_set()
 
         win_root = Frame(win, height=height-20, width=width-20)
         win_root.place(x=10, y=10)
 
         global U_BOX, P_BOX, C_BOX
+
         # TABLE/CATEGORY NAME
         C_FRAME = Frame(win_root, height=70, width=450)
         C_FRAME.place(x=15,y=5)
