@@ -146,15 +146,22 @@ def getData(clicked):
         return
     else:
         pass
-
+    #Get the name of the table/category and sort them
     tables = db.getTables()
     tables.sort()
+    
     for table in tables:
         leftframelistbox.insert('', 'end', values=table)
+
     if clicked:
         currentSelectionLeft = leftframelistbox.focus()
         valueArray_2 = leftframelistbox.item(currentSelectionLeft)['values'] # CONTAINS ARRAY
-        if valueArray_2 == "":
+
+        if valueArray_2 == "" or valueArray_2 == []:
+            for i in leftframelistbox.get_children():
+                leftframelistbox.delete(i)
+            for table in tables:
+                leftframelistbox.insert('', 'end', values=table)
             return
         else:
             for i in leftframelistbox.get_children():
@@ -785,7 +792,7 @@ rightframelistbox.heading(0, text='ID')
 rightframelistbox.heading(1, text='Type')
 rightframelistbox.heading(2, text='Username')
 rightframelistbox.heading(3, text='Password')
-rightframelistbox.column(0,width=30, anchor='ne')
+rightframelistbox.column(0,width=30, anchor='e')
 rightframelistbox.column(1, width=150)
 rightframelistbox.column(2,width=293)
 rightframelistbox.column(3,width=230)
