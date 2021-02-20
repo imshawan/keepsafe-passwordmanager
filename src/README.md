@@ -4,6 +4,6 @@
 <img src="snap4.PNG" height=400>
 <img src="snap5.PNG" height=400>
 <img src="snap6.PNG" height=400>
-<img src="snap7.PNG" height=400>
+<img src="snap7.png" height=400>
 <img src="snap8.PNG" height=400>
-<img src="snap9.PNG" height=400>
+<img src="snap9.png" height=400>
