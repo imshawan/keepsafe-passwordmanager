@@ -2,12 +2,10 @@
   <img src="/src/mainICO.png" height="200" align="centre">
  </p>
 <p align="center">
-
 [![KeepSafe: Passing](https://img.shields.io/badge/KeepSafe-Passing-lightgreen)](https://github.com/imshawan/keepsafe-passwordmanager)
 ![License: MIT](https://img.shields.io/badge/License-MIT-Green)
 ![Code Size: 135](https://img.shields.io/badge/Code%20Size-195KB-blue)
 ![Release: 1.2.1](https://img.shields.io/badge/Release-1.3.1-informational)
-
 </p>
 
 # KeepSafe - Password Manager
