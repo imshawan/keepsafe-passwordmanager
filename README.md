@@ -19,7 +19,7 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the mod
 ```bash
 pip install -r /path/to/requirements.txt
 ```
-## Compile executable
+## Compiling into executable?
 * Use pip to install PyInstaller
 ```bash
 pip install pyinstaller
@@ -32,6 +32,12 @@ Or use
 
 ```bash
 pyinstaller --windowed --noconsole keepsafe.py
+```
+For advanced usage, if you want to create a windows setup installer
+```bash
+pyinstaller --noconfirm --windowed --noconsole --icon=<iconImage.ico> --version-file=<versionINFOFile.txt> keepsafe.py
+# Replace iconImage.ico with the application icon file
+# Replace versionINFOFile.txt with the version information text file
 ```
   
 ## Some Notes worth to be kept in mind!
