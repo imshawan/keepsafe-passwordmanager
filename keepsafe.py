@@ -215,6 +215,7 @@ def addCategory():
         category = T_BOX.get()
         if category == "":
             messagebox.showerror("Error!", "No values was entered!")
+            win.focus_set()
             return
         db.create_DB(category)
         messagebox.showinfo("Information!", f"{category} Category Created Successfully!")
@@ -314,8 +315,9 @@ def view():
         username, passwrd = getCurrentValues(rightframelistbox)
     except:
         pass
-    
-    if username == '' and passwrd == '':
+
+    if username == '' and passwrd == '' or username == '<Empty Field>':
+        messagebox.showerror("Error!", "Selected value is an empty field!")
         return
     passwrd = db.getA_Password(currentCategory, username)
     passwrd = crypt.decryptData(bytes(passwrd, 'utf-8'), db.pswd).decode()
@@ -411,6 +413,7 @@ def modify_Elements(modificationType):
         pass
     
     if usernamee == '' and passwrd == '':
+
         if modificationType == 'new':
             pass
         else:
@@ -475,6 +478,10 @@ def modify_Elements(modificationType):
                 win.focus_set()
 
     def editVal(table, editType, currentvalue, newvalue):
+        if currentvalue == '<Empty Field>':
+            messagebox.showerror("Error!", "Selected value is an empty field!")
+            return
+
         global currentCategory, usernamee
         e = editType[0].upper()
         e = e + editType[1:]
@@ -587,7 +594,10 @@ def delete_Elements():
     if usr == '' and psw == '':
         messagebox.showwarning("Warning!", "Select a field first!")
         return
-
+    elif usr == '<Empty Field>' or psw == '<Empty Field>':
+        messagebox.showerror("Error!", "Selected value is an empty field!")
+        return
+        
     ans = messagebox.askokcancel("Warning!", f"Are you sure to delete values of {usr}?")
     if ans:
         try:
