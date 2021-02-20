@@ -1,5 +1,5 @@
-<p align="centre">
-  <img src="/src/mainICO.png">
+<p style="text-align: centre;">
+  <img src="/src/mainICO.png" height="200" align="centre">
 
 [![KeepSafe: Passing](https://img.shields.io/badge/KeepSafe-Passing-lightgreen)](https://github.com/imshawan/keepsafe-passwordmanager)
 ![License: MIT](https://img.shields.io/badge/License-MIT-Green)
