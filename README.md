@@ -1,4 +1,4 @@
-<p style="text-align: centre;">
+
   <img src="/src/mainICO.png" height="200" align="centre">
 
 [![KeepSafe: Passing](https://img.shields.io/badge/KeepSafe-Passing-lightgreen)](https://github.com/imshawan/keepsafe-passwordmanager)
@@ -6,7 +6,6 @@
 ![Code Size: 135](https://img.shields.io/badge/Code%20Size-195KB-blue)
 ![Release: 1.2.1](https://img.shields.io/badge/Release-1.3.1-informational)
 
-</p>
 # KeepSafe - Password Manager
 
 KeepSafe is a free Powerful and secure password manager with a elegant design. It lets you manage all your credentials quickly and efficiently for local applications and online services in a single window. KeepSafe stores your credentials in an encrypted form to the database so that no one can access your sensitive information without your permission. Check here for <a href="/src/"> screenshots </a>
