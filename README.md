@@ -3,9 +3,9 @@
  </p>
 <p align="center">
   
-[![KeepSafe: Passing](https://img.shields.io/badge/KeepSafe-Passing-lightgreen)](https://github.com/imshawan/keepsafe-passwordmanager)
+[![KeepSafe: Passing](https://img.shields.io/badge/KeepSafe-Passing-green)](https://github.com/imshawan/keepsafe-passwordmanager)
 ![License: MIT](https://img.shields.io/badge/License-MIT-Green)
-![Code Size: 135](https://img.shields.io/badge/Code%20Size-195KB-blue)
+![Code Size: 135](https://img.shields.io/badge/Code%20Size-195KB-lightblue)
 ![Release: 1.2.1](https://img.shields.io/badge/Release-1.3.1-informational)
 
 </p>
