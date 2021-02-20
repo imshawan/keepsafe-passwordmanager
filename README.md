@@ -1,12 +1,11 @@
-[![KeepSafe: Building](https://img.shields.io/badge/KeepSafe-Building-yellow)](https://github.com/imshawan/keepsafe-passwordmanager)
+[![KeepSafe: Passing](https://img.shields.io/badge/KeepSafe-Building-yellow)](https://github.com/imshawan/keepsafe-passwordmanager)
 ![License: MIT](https://img.shields.io/badge/License-MIT-Green)
 ![Code Size: 135](https://img.shields.io/badge/Code%20Size-195KB-blue)
+![Release: 1.2.1](https://img.shields.io/badge/Release-1.3.1-informational)
 
 # KeepSafe - Password Manager
 
 KeepSafe is a free Powerful and secure password manager with a elegant design. It lets you manage all your credentials quickly and efficiently for local applications and online services in a single window. KeepSafe stores your credentials in an encrypted form to the database so that no one can access your sensitive information without your permission.
-
-# Some Features Are Currently Under development...!
 
 ## Main Features of KeepSafe - Password Manager
 
@@ -20,6 +19,21 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the mod
 ```bash
 pip install -r /path/to/requirements.txt
 ```
+## Compile executable
+* Use pip to install PyInstaller
+```bash
+pip install pyinstaller
+```
+Compile to executable (*.exe) 
+```bash
+pyinstaller --onefile --noconsole keepsafe.py
+```
+Or use
+
+```bash
+pyinstaller --windowed --noconsole keepsafe.py
+```
+  
 ## Some Notes worth to be kept in mind!
 
 * /resources/config.dat ----------------------> Contains user configurations
