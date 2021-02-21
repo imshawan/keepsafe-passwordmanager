@@ -46,7 +46,11 @@ pyinstaller --noconfirm --windowed --noconsole --icon=<iconImage.ico> --version-
 # Replace iconImage.ico with the application icon file
 # Replace versionINFOFile.txt with the version information text file
 ```
-  
+
+## Brief usage introduction
+
+<img src="/src/detail-use.png" height=400>
+
 ## Some Notes worth to be kept in mind!
 
 * /resources/config.dat ----------------------> Contains user configurations
