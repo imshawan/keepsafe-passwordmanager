@@ -31,7 +31,8 @@ pip install -r /path/to/requirements.txt
 ```bash
 pip install pyinstaller
 ```
-Compile to executable (*.exe) 
+* Navigate to the project folder
+* Compile into executable (*.exe) using the following command
 ```bash
 pyinstaller --onefile --noconsole keepsafe.py
 ```
