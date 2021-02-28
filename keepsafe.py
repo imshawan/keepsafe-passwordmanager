@@ -634,6 +634,7 @@ def leftClick(x):
     left_menu.tk_popup(x.x_root, x.y_root)
 
 def logincheckbox():
+    '''Displays the main login area for the users to login with their Master Password'''
     global configured, L_BOX
     loginBox = Frame(loginFrame, height=27, width=360, bg=bars)
     loginBox.place(x=340,y=0)
