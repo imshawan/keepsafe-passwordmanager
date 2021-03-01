@@ -54,7 +54,7 @@ pyinstaller --noconfirm --windowed --noconsole --icon=<iconImage.ico> --version-
 
 ## Some Notes worth to be kept in mind!
 
-* /resources/config.dat &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #Contains user configurations
+* /resources/config.dat &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;#Contains user configurations
 * /resources/keepsafe.db &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; #The main database file
 
 #### Files created under '/resources' folder are not to be played with and any changes made to the files may result in data loss AND I'm not responsible for that
