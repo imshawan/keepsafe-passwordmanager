@@ -15,8 +15,6 @@ import platform, socket, base64
 import icons_base64 as icons
 
 
-
-
 def getICO(icon):
     base64_img_bytes = icon.encode('utf-8')
     decoded_image_data = base64.decodebytes(base64_img_bytes)
@@ -24,6 +22,7 @@ def getICO(icon):
     return ico
 
 def aboutwindow(windows):
+    global bars
     width = 500
     height = 570
     win = tk.Toplevel()
@@ -55,7 +54,7 @@ def aboutwindow(windows):
     lbl1 = Label(headFrame, image=iconMain, borderwidth=0)
     lbl1.img = iconMain
     lbl1.place(x=145,y=5)
-    vlbl = Label(headFrame, text='Version 1.3.1', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
+    vlbl = Label(headFrame, text='Version 1.4.0', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
     vlbl.place(x=205,y=72)
     
     infoframe = Frame(win, height=95, width=380, highlightthickness=1, highlightbackground='black', bg='silver')
@@ -94,10 +93,13 @@ def aboutwindow(windows):
     emaillbl = Label(footer, text='imshawan.dev049@gmail.com',fg="blue", cursor="hand2")
     emaillbl.place(x=100,y=35)
 
-    b = ttk.Button(win, text="CLOSE", command=win.destroy)
-    b.place(x=206, y=510)
+    closeICON = getICO(icons.BTN_ClOSE)
+    b = Button(win, image=closeICON, bd=0, command=win.destroy)
+    b.img = closeICON
+    b.place(x=202, y=513)
 
 def licenses(windows):
+    global bars
     width = 500
     height = 480
     win = tk.Toplevel()
@@ -148,6 +150,8 @@ def licenses(windows):
                                     'DEALINGS IN THE SOFTWARE.', justify=LEFT)
     textlbl.place(x=0,y=0)
 
-    b = ttk.Button(win, text="CLOSE", command=win.destroy)
+    closeICON = getICO(icons.BTN_ClOSE)
+    b = Button(win, image=closeICON, bd=0, command=win.destroy)
+    b.img = closeICON
     b.place(x=205, y=420)
 
