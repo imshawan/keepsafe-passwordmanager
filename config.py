@@ -170,6 +170,9 @@ def manageEnc(userEntry, passEntry, operation, win, mainwindow):
 
             for theUser in users:
                 D_base.updateHASH(table, theUser, oldPass)
+
+            # Initialise "users" array, so that it doesn't conflicts with the contents of other table
+            users = []
     
         handle_message('success', win, mainwindow)
         win.destroy()
