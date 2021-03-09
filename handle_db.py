@@ -103,9 +103,8 @@ def getA_Password(category, theUser):
 
     try:
         for rows in getCurser.execute(f'SELECT * FROM {category} WHERE username=("%s")'%(theUser)):
-            fields.append(rows)
-
-        return rows[1]
+            fields = rows[1]
+        return fields
     except sqlite3.OperationalError as err:
         raise RuntimeError(err)
 
@@ -118,7 +117,6 @@ def updateHASH(category, theUser, oldPassword):
     #                 Encrypting the new password with then new user-password
     currentPassword = crypt.decryptData(bytes(currentPasswordHash, 'utf-8'), oldPassword).decode() #Get the plain text password from the encrypted-password
     newPasswordHash = crypt.encryptData(bytes(currentPassword, 'utf-8'), pswd).decode() #Encrypting the new password
-
     #
     #                 Updating the encrypted password
     #
