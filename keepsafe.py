@@ -19,7 +19,7 @@ import information as inf
 import config as conf
 import encryption as crypt
 
-# ICONS Init
+# ICONS Init 
 keepsafe_ico = sm.MAIN_ICOTXT
 addbutton = sm.ICO_ADD
 viewbtn = sm.ICO_VIEW
@@ -79,9 +79,10 @@ styles = ttk.Style()
 style = ThemedStyle(windows)
 #app.ttkStyle = ThemedStyle(app.topLevel)
 style.set_theme("adapta")
-styles.map("Treeview", background=[('selected', '#0f51c9')])
+
+styles.map("Treeview", background=[('selected', '#e03d50')])    ##0f51c9
 #styles.theme_use('black')
-styles.configure("Treeview", background='#f0f0f0', foreground = 'black',fieldbackground="#f0f0f0", font=(None, 10), relief = 'flat')
+styles.configure("Treeview", background='#f0f0f0', foreground = 'black', rowheight=20, fieldbackground="#f0f0f0", font=(None, 10), relief = 'flat')
 styles.configure("Treeview.Heading", font=(None, 11,'bold'))
 
 def getICONS(icon):
@@ -124,13 +125,18 @@ def getValues(category):
     for i in fields.values():
         psw.append(i)
     getData(False)
+    rightframelistbox.tag_configure('oddrow', background="white")
+    rightframelistbox.tag_configure('evenrow', background="silver")
 
     if usr == [] or psw == []: # IF CATEGORY TABLE IS EMPTY
         rightframelistbox.insert('', 'end', values=('1' + ".",currentCategory + " credentials","<Empty Field>", "<Empty Field>"))
 
     for i in range(len(usr)):
         decryptedPassword = crypt.decryptData(bytes(psw[i], 'utf-8'), db.pswd).decode()
-        rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],len(decryptedPassword)*"*"))
+        if i%2 == 0:
+            rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],len(decryptedPassword)*"*"), tag=('evenrow',))
+        else:
+            rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],len(decryptedPassword)*"*"), tag=('oddrow',))
     
     rightframelistbox.config(yscrollcommand=rightframelistboxscroll.set)
     rightframelistboxscroll.config(command=rightframelistbox.yview)
@@ -139,7 +145,6 @@ def getValues(category):
 def getData(clicked): 
     '''This function fetches all the tables from the database'''
     
-    tbl = []
     global leftframelistbox, rightframelistbox, userAuthentication, currentCategory
     if userAuthentication != True:
         messagebox.showerror('Error!', "Authenticate yourself first!")
@@ -150,8 +155,16 @@ def getData(clicked):
     tables = db.getTables()
     tables.sort()
     
+    leftframelistbox.tag_configure('evenrow', background="white", font=(None, 10, 'bold'))
+    leftframelistbox.tag_configure('oddrow', background="#00a8eb", font=(None, 10, 'bold'), foreground='white')
+    count = 0
+
     for table in tables:
-        leftframelistbox.insert('', 'end', values=table)
+        if count % 2 == 0:
+            leftframelistbox.insert('', 'end', values=table, tag=('evenrow',))
+        else:
+            leftframelistbox.insert('', 'end', values=table, tag=('oddrow',))
+        count += 1
 
     if clicked:
         currentSelectionLeft = leftframelistbox.focus()
@@ -160,8 +173,13 @@ def getData(clicked):
         if valueArray_2 == "" or valueArray_2 == []:
             for i in leftframelistbox.get_children():
                 leftframelistbox.delete(i)
+            count = 0
             for table in tables:
-                leftframelistbox.insert('', 'end', values=table)
+                if count % 2 == 0:
+                    leftframelistbox.insert('', 'end', values=table, tag=('evenrow',))
+                else:
+                    leftframelistbox.insert('', 'end', values=table, tag=('oddrow',))
+                count += 1
             return
         else:
             for i in leftframelistbox.get_children():
@@ -231,7 +249,7 @@ def addCategory():
         win.destroy()
 
     width = 500
-    height = 130
+    height = 135
     win = tk.Toplevel()
     win.wm_title("KeepSafe - Add Category")
     screen_width = windows.winfo_screenwidth()
@@ -259,10 +277,11 @@ def addCategory():
     T_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
     T_BOX.place(x=2,y=35)
 
-    bs = Button(win, text='Add Category', font=(None, 10, 'bold'), bd=0, bg=bars, width=15, activebackground=bars, command=lambda: add(win))
-    bs.config(highlightbackground='blue', highlightthickness=1)
-    bs.config(highlightcolor="red")
-    bs.place(x=185, y=height-40)
+    icon_AddCategory = getICONS(sm.BTN_ADD_CATEGORY)
+
+    bs = Button(win, image=icon_AddCategory, font=(None, 10, 'bold'), bd=0, command=lambda: add(win))
+    bs.img = icon_AddCategory
+    bs.place(x=170, y=height-48)
 
 def delete_Category():
     ''' This function deletes the category depending upon the user selection '''
@@ -331,14 +350,18 @@ def view():
 
     def showORhide(s, psBOX, pswrd):
         global hide
+        icon_show = getICONS(sm.BTN_SHOW)
+        icon_hide = getICONS(sm.BTN_HIDE)
 
         if hide:
-            s.config(text='Hide')
+            s.config(image=icon_hide)
+            s.img = icon_hide
             psBOX.delete(0, END)
             psBOX.insert(INSERT, pswrd)
             hide = False
         else:
-            s.config(text='Show')
+            s.config(image = icon_show)
+            s.img = icon_show
             psBOX.delete(0, END)
             psBOX.insert(INSERT, len(pswrd) * "*")
             hide = True
@@ -385,16 +408,18 @@ def view():
     P_BOX.place(x=2,y=35)
 
     #BUTTONS 
+    icon_close = getICONS(sm.BTN_ClOSE)
+    icon_show = getICONS(sm.BTN_SHOW)
 
     #SHOW / HIDE BUTTON
-    sh = Button(win, text='Show', bd=0, bg=bars, width=10, activebackground=bars, command=lambda: showORhide(sh, P_BOX, passwrd))
-    sh.place(x=160, y=height-48)
+    sh = Button(win, image = icon_show, bd=0, command=lambda: showORhide(sh, P_BOX, passwrd))
+    sh.img = icon_show
+    sh.place(x=140, y=height-48)
 
     #CLOSE BUTTON
-    bs = Button(win, text='Close',bd=0, bg=bars, width=10, activebackground=bars, command=win.destroy)
-    bs.config(highlightbackground='blue', highlightthickness=1)
-    bs.config(highlightcolor="red")
-    bs.place(x=270, y=height-48)
+    bs = Button(win, image = icon_close, bd=0, command=win.destroy)
+    bs.img = icon_close
+    bs.place(x=260, y=height-48)
 
 
 def resetConsole():
@@ -548,9 +573,11 @@ def modify_Elements(modificationType):
         P_BOX.config(width=55, highlightthickness=1, highlightbackground='#0b5394')
         P_BOX.place(x=2,y=35)
         
-        bs = Button(win,bd=0, bg=bars, width=15, activebackground=bars)
-        bs.config(highlightbackground='blue', highlightthickness=1, font=(None, 10, 'bold'))
-        bs.place(x=190, y=height-48)
+        bs = Button(win,bd=0)
+        bs.place(x=185, y=height-48)
+
+        icon_change = getICONS(sm.BTN_CHANGE)
+        icon_add = getICONS(sm.BTN_ADD)
 
         if editType == 'new':
             win.wm_title("KeepSafe - Add Credentials")
@@ -564,12 +591,14 @@ def modify_Elements(modificationType):
             if currentCategory != "":
                 C_BOX.configure(state='disabled')
 
-            bs.config(text='Add Values',command=lambda: edit(currentCategory, 'new', usernamee, passwrd, win))            
+            bs.config(image = icon_add, command=lambda: edit(currentCategory, 'new', usernamee, passwrd, win))   
+            bs.img = icon_add         
         else:
             U_BOX.configure(state='disabled')
             C_BOX.configure(state='disabled')
-            bs.config(text='Change Values', command=lambda: edit(currentCategory, editType, currentvalue, newvalue, win))
-            bs.place(x=185, y=height-48)
+            bs.config(image=icon_change, command=lambda: edit(currentCategory, editType, currentvalue, newvalue, win))
+            bs.img = icon_change
+            bs.place(x=170, y=height-48)
 
     
     if modificationType == '':
@@ -634,7 +663,6 @@ def leftClick(x):
     left_menu.tk_popup(x.x_root, x.y_root)
 
 def logincheckbox():
-    '''Displays the main login area for the users to login with their Master Password'''
     global configured, L_BOX
     loginBox = Frame(loginFrame, height=27, width=360, bg=bars)
     loginBox.place(x=340,y=0)
