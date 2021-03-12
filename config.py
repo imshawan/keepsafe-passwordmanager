@@ -16,9 +16,11 @@ import icons_base64 as icon
 import encryption as crypt
 from datetime import datetime
 import handle_db as D_base
+from tkinter.ttk import Progressbar
 
 #CONFIG File
-global configFile
+global configFile, PasswordChanged
+PasswordChanged = False
 
 cf = 'resources'
 if not os.path.exists(cf):
@@ -102,9 +104,30 @@ def getUsername(master_password):
     json_res = json.loads(config_data.decode('utf-8'))
     return json_res
 
-def manageEnc(userEntry, passEntry, operation, win, mainwindow):
+def manageEnc(userEntry, passEntry, operation, win, mainwindow, bottomFrame):
     '''This function takes the parameters "Master Password", "Username and password" for new registration and "Operation" for the type of operation
     (either register or login) and performs the required work.'''
+
+    global PasswordChanged
+    
+    def getTotalEntries():
+        usrs = []
+        valuesCount = 0
+
+        tbls = D_base.getTables()
+        tbls.sort()
+
+        for tbl in tbls:
+            flds = D_base.getElements(tbl)
+            for i in flds.keys():
+                usrs.append(i)
+
+            for theUsrs in usrs:
+                valuesCount += 1
+
+            # Initialise "users" array
+            usrs = []
+        return valuesCount
 
     date, time = timestamp()
     if operation == 'register':
@@ -130,7 +153,7 @@ def manageEnc(userEntry, passEntry, operation, win, mainwindow):
         handle_message('success', win, mainwindow)
         win.destroy()
 
-    elif operation == 'change':
+    elif operation == 'change':        
         users = []
         master_password = userEntry.get()
         new_password = passEntry.get()
@@ -163,22 +186,38 @@ def manageEnc(userEntry, passEntry, operation, win, mainwindow):
         tables = D_base.getTables()
         tables.sort()
         D_base.pswd = new_password
+        
+        increment = 100/getTotalEntries()
+        progressValue = 0
+
+        lbl = Label(bottomFrame, text="Updating records with new master key...", bg='#3f6975', fg='white')
+        lbl.place(x=90,y=0)
+
+        #Progressbar
+        progressbar = Progressbar(bottomFrame, orient=HORIZONTAL, length=300, mode='determinate', value=0)
+        progressbar.place(x=50, y=30)
+
         for table in tables:
             fields = D_base.getElements(table)
             for i in fields.keys():
                 users.append(i)
 
             for theUser in users:
+                progressValue += increment
+    
                 D_base.updateHASH(table, theUser, oldPass)
+                progressbar['value'] = progressValue
+                win.update_idletasks()
 
             # Initialise "users" array, so that it doesn't conflicts with the contents of other table
             users = []
-    
+        PasswordChanged = True
         handle_message('success', win, mainwindow)
         win.destroy()
         
 
 def config(windows, configured, userAuthentication):
+
     if userAuthentication == True or userAuthentication == 'newuser':
         pass
     else:
@@ -186,7 +225,7 @@ def config(windows, configured, userAuthentication):
         return
 
     width = 400
-    height = 420
+    height = 450
     win = tk.Toplevel()
     
     screen_width = windows.winfo_screenwidth()
@@ -238,10 +277,14 @@ def config(windows, configured, userAuthentication):
         lastActivityFrame = Frame(win, height=50, width=330, bg='#3f6975')
         lastActivityFrame.place(x=38, y=370)
         # Shows the last activity date and time stored in config data file
-        lastActivitylabel = Label(lastActivityFrame, text=f"Last Password was updated at: {json_res['time'] } Hrs, Date: {json_res['date']}", bg='#3f6975', fg='#ffffff')
+        lastActivitylabel = Label(lastActivityFrame, text=f"Last Password was updated at: {json_res['time'] } hrs, Date: {json_res['date']}", bg='#3f6975', fg='#ffffff')
         lastActivitylabel.place(x=0,y=0)
 
-        savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'change', win, windows))
+        bottomFrame = Frame(win, height=65, width=width)
+        bottomFrame.configure(bg='#3f6975')
+        bottomFrame.place(x=0,y=395)
+        
+        savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'change', win, windows, bottomFrame))
         savebtn.img = savebtnico
         savebtn.place(x=75,y=315)
 
@@ -260,7 +303,7 @@ def config(windows, configured, userAuthentication):
         passEntry.insert(INSERT, 'Create password')
         passEntry.place(x=75,y=265)
 
-        savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'register', win, windows))
+        savebtn = Button(win, image=savebtnico, bd=0, bg='#3f6975', activebackground='#00ce00', command=lambda: manageEnc(userEntry, passEntry, 'register', win, windows, ''))
         savebtn.img = savebtnico
         savebtn.place(x=75,y=315)
 
