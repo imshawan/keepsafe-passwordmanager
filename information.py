@@ -54,7 +54,7 @@ def aboutwindow(windows):
     lbl1 = Label(headFrame, image=iconMain, borderwidth=0)
     lbl1.img = iconMain
     lbl1.place(x=145,y=5)
-    vlbl = Label(headFrame, text='Version 1.4.0', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
+    vlbl = Label(headFrame, text='Version 1.4.1', bg='#212731', fg='#ffffff', font=(None, 8, 'bold'))
     vlbl.place(x=205,y=72)
     
     infoframe = Frame(win, height=95, width=380, highlightthickness=1, highlightbackground='black', bg='silver')
