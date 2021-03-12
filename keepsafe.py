@@ -18,6 +18,7 @@ from ttkthemes import ThemedStyle
 import information as inf
 import config as conf
 import encryption as crypt
+import threading
 
 # ICONS Init 
 keepsafe_ico = sm.MAIN_ICOTXT
@@ -84,6 +85,7 @@ styles.map("Treeview", background=[('selected', '#e03d50')])    ##0f51c9
 #styles.theme_use('black')
 styles.configure("Treeview", background='#f0f0f0', foreground = 'black', rowheight=20, fieldbackground="#f0f0f0", font=(None, 10), relief = 'flat')
 styles.configure("Treeview.Heading", font=(None, 11,'bold'))
+#styles.configure("red.Horizontal.TProgressbar", foreground='red', background='red')
 
 def getICONS(icon):
     base64_img_bytes = icon.encode('utf-8')
@@ -109,6 +111,7 @@ def checkAuthentication(w):
 
 def getValues(category):
     ''' This function fetches all the values (rows and columns) from the table supplied as arguements in Variable "category"'''
+    
     usr = []
     psw = []
     
@@ -133,7 +136,7 @@ def getValues(category):
 
     for i in range(len(usr)):
         decryptedPassword = crypt.decryptData(bytes(psw[i], 'utf-8'), db.pswd).decode()
-        if i%2 == 0:
+        if i % 2 == 0:
             rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],len(decryptedPassword)*"*"), tag=('evenrow',))
         else:
             rightframelistbox.insert('', 'end', values=(str(i+1) + ".",currentCategory + " credentials",usr[i],len(decryptedPassword)*"*"), tag=('oddrow',))
@@ -155,8 +158,8 @@ def getData(clicked):
     tables = db.getTables()
     tables.sort()
     
-    leftframelistbox.tag_configure('evenrow', background="white", font=(None, 10, 'bold'))
-    leftframelistbox.tag_configure('oddrow', background="#00a8eb", font=(None, 10, 'bold'), foreground='white')
+    leftframelistbox.tag_configure('evenrow', background="white", foreground='#004040', font=('Segoe UI Regular', 10, 'bold'))
+    leftframelistbox.tag_configure('oddrow', font=('Segoe UI Regular', 10, 'bold')) #background="#00a8eb"
     count = 0
 
     for table in tables:
@@ -191,6 +194,7 @@ def getData(clicked):
 
 def getCurrentValues(r):
     ''' Takes the TreeView-Box as arguements and returns the Usernames and Passwords depending upon current selection '''
+
     global userAuthentication
 
     if userAuthentication:
@@ -242,6 +246,7 @@ def addCategory():
             messagebox.showerror("Error!", "No values was entered!")
             win.focus_set()
             return
+
         db.create_DB(category)
         messagebox.showinfo("Information!", f"{category} Category Created Successfully!")
         currentCategory = category
@@ -310,6 +315,7 @@ def delete_Category():
 
 def RefreshCategory():
     ''' Refreshes the category table on the left frame '''
+
     global userAuthentication
     if userAuthentication:
         pass
@@ -326,6 +332,7 @@ def RefreshCategory():
 
 def view():
     ''' Right-click "View" function '''
+
     global rightframelistbox, userAuthentication, hide, currentCategory
     hide = True
 
@@ -345,6 +352,7 @@ def view():
     if username == '' and passwrd == '' or username == '<Empty Field>':
         messagebox.showerror("Error!", "Selected value is an empty field!")
         return
+
     passwrd = db.getA_Password(currentCategory, username)
     passwrd = crypt.decryptData(bytes(passwrd, 'utf-8'), db.pswd).decode()
 
@@ -424,6 +432,7 @@ def view():
 
 def resetConsole():
     ''' Clears all the elements (Username and password list) from the console'''
+
     global rightframelistbox
     for i in rightframelistbox.get_children():
         rightframelistbox.delete(i)
@@ -612,6 +621,7 @@ def modify_Elements(modificationType):
 
 def delete_Elements():
     ''' Deletes values of a particular username upon user condition '''
+
     global rightframelistbox, currentCategory, userAuthentication
 
     if userAuthentication:
@@ -657,9 +667,11 @@ def delete():
         pass
 
 def rightClick(x):
+    '''Right click event for right frame'''
     right_menu.tk_popup(x.x_root, x.y_root)
 
 def leftClick(x):
+    '''Right click event for left frame'''
     left_menu.tk_popup(x.x_root, x.y_root)
 
 def logincheckbox():
@@ -815,7 +827,8 @@ rightframelistboxFrame = Frame(rightframe, height=500, width=width-232)
 rightframelistboxFrame.place(x=0, y=27)
 # ListBox
 global rightframelistbox
-rightframelistbox = ttk.Treeview(rightframelistboxFrame) #(rightframelistboxFrame, height=30, width=92, borderwidth=0, bg='#f0f0f0')
+rightframelistbox = ttk.Treeview(rightframelistboxFrame) 
+                    #(rightframelistboxFrame, height=30, width=92, borderwidth=0, bg='#f0f0f0')
 rightframelistbox.config(columns=('id', 'Type', 'usr', 'psw'), show='headings', height=18)
 rightframelistbox.heading(0, text='ID')
 rightframelistbox.heading(1, text='Type')
@@ -834,14 +847,65 @@ rightframelistboxscroll.pack(side='right', fill='y')
 # RIGHT CLICK Functionality for Right Frame
 right_menu = Menu(rightframelistbox, tearoff=False)
 right_menu.add_command(label='...')
-right_menu.add_command(label='View   ', command=view)
-right_menu.add_command(label='Delete   ', command=delete_Elements)
-right_menu.add_command(label='Refresh   ', command=RefreshValues)
+right_menu.add_command(label='View', command=view)
+right_menu.add_command(label='Delete', command=delete_Elements)
+right_menu.add_command(label='Refresh', command=RefreshValues)
 right_menu.add_command(label='Modify Username', command=lambda: modify_Elements('usr'))
 right_menu.add_command(label='Modify Password', command=lambda: modify_Elements('psw'))
 right_menu.add_separator()
 right_menu.add_command(label='Close', command=resetConsole)
 rightframelistbox.bind("<Button-3>", rightClick)
+
+##################
+global changesMade
+changesMade = False
+
+def checkForControlChanges():
+
+    global changesMade
+    alert = getICONS(sm.ICO_ALERT)
+    
+    #if conf.PasswordChanged == True and changesMade == False:
+    if changesMade == False:
+
+        for i in leftframelistbox.get_children():
+            leftframelistbox.delete(i)
+        for i in rightframelistbox.get_children():
+            rightframelistbox.delete(i)
+
+        # Buttons
+        addbtn.config(state='disable')
+        viewbtnn.config(state='disable')
+        settingsbtnn.config(state='disable')
+        settingsbtnn.config(state='disable')
+        #Right click menus
+        right_menu.entryconfig("View", state='disabled')
+        right_menu.entryconfig("Delete", state='disabled')
+        right_menu.entryconfig("Refresh", state='disabled')
+        right_menu.entryconfig("Modify Username", state='disabled')
+        right_menu.entryconfig("Modify Password", state='disabled')
+        right_menu.entryconfig("Close", state='disabled')
+
+        left_menu.entryconfig("Open", state='disabled')
+        left_menu.entryconfig("Refresh", state='disabled')
+        left_menu.entryconfig("Add Category", state='disabled')
+        left_menu.entryconfig("Delete Category", state='disabled')
+
+        alertFrame = Frame(root, height=160, width=450)
+        alertFrame.place(x=400,y=250)
+        alrt = Label(alertFrame, image=alert, bg='#f0f0f0')
+        alrt.img = alert
+        alrt.place(x=180,y=0)
+        lbl = Label(alertFrame, text="Please restart the program\nto continue!", font=(None, 20, 'bold'))
+        lbl.place(x=45, y=85)
+
+        changesMade = True
+
+    root.after(100, checkForControlChanges)
+
+# Start 'checkForControlChanges' thread
+thread1 = threading.Thread(target=checkForControlChanges)
+thread1.start()
 
 #-------------------------------------------------------------------------------------
 # END of the program
